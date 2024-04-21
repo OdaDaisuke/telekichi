@@ -1,9 +1,34 @@
-import Image from "next/image";
+import { EPGHeader } from '@/components/epg/header';
+import { EPGTimeScale } from '@/components/epg/time_scale';
+import { EPGBody } from '@/components/epg/body';
+import { MirakurunEvent } from "@/models/mirakurun";
+import { mirakurun } from '@/gateway/mirakurun';
 
-export default function EPG() {
+// 番組表ページ
+export default async function EPG() {
+  const headerLabels = [
+    "NHK総合１・東京",
+    "NHKEテレ１・東京",
+    "日テレ１",
+    "テレビ朝日",
+    "TBS１",
+    "テレビ東京１",
+  ]
+
+  const sampleProgram = await mirakurun.fetchEventInfo(1)
+  const currentHour = (new Date()).getHours()
+  const programs = new Map<string, Array<MirakurunEvent>>()
+  programs.set("16", [
+    sampleProgram, sampleProgram, sampleProgram,
+  ])
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div>EPG</div>
-    </main>
+    <div>
+      <EPGHeader labels={headerLabels}/>
+      <div className="flex">
+        <EPGTimeScale currentHour={currentHour}/>
+        <EPGBody programs={programs} currentTime={(new Date()).getTime()}/>
+      </div>
+    </div>
   );
 }

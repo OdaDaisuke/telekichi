@@ -16,14 +16,11 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+html, body {
+  background-color: #2f2f3f;
+  color: #fff;
+  min-height: 100vh;
+  min-width: 100vw;
 }
 
 @layer utilities {
