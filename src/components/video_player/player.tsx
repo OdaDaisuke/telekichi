@@ -33,6 +33,7 @@ const _HLSPlayer = forwardRef<HTMLVideoElement, Props>(
         });
         hls.loadSource(src);
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+          console.log('on parsed')
           hls.attachMedia(video);
         })
         hls.on(Hls.Events.ERROR, (e) => {

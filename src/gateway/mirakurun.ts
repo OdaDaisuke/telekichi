@@ -1,5 +1,5 @@
 "use client";
-import { MirakurunChannelList, MirakurunChannelType, MirakurunEvent } from "@/models/mirakurun"
+import { MirakurunChannelList, MirakurunChannelType, MirakurunProgram } from "@/models/mirakurun"
 import axios, { AxiosInstance } from "axios"
 
 class Mirakurun {
@@ -63,6 +63,15 @@ class Mirakurun {
     ]
   }
 
+  async fetchPrograms(serviceId: number): Promise<Array<MirakurunProgram>> {
+    try {
+      const r = await this.client.get<Array<MirakurunProgram>>(`/programs?serviceId=${serviceId}`)
+      return r.data
+    } catch (e) {
+      return []
+    }
+  }
+
   /**
    * 特定の番組の再生可能URLを取得する
    * @param serviceId mirakurunのserviceId
@@ -73,11 +82,11 @@ class Mirakurun {
   }
 
   /**
-   * 番組(event)の情報取得
+   * 番組の情報取得
    * @param programId 番組ID
    * @returns 
    */
-  async fetchEventInfo(eventId: number): Promise<MirakurunEvent> {
+  async fetchProgramInfo(programId: number): Promise<MirakurunProgram> {
     return {
       id: 323912360909823,
       eventId: 9823,
@@ -129,6 +138,15 @@ class Mirakurun {
           "type": "shared", "serviceId": 23608, "eventId": 9823
         }
       ],
+      series: {
+        id: 1,
+        repeat: 0,
+        pattern: 7,
+        expiresAt: 0,
+        episode: 4095,
+        lastEpisode: 4095,
+        name: "",
+      },
     }
   }
 }

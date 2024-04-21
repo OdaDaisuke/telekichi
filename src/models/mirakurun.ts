@@ -44,7 +44,17 @@ interface MirakurunRelatedItem {
   eventId: number;
 }
 
-export interface MirakurunEvent {
+interface MirakurunSeries {
+  id: number
+  repeat: number
+  pattern: number
+  expiresAt: number
+  episode: number
+  lastEpisode: number
+  name: string
+}
+
+export interface MirakurunProgram {
   id: number;
   eventId: number;
   serviceId: number;
@@ -59,4 +69,5 @@ export interface MirakurunEvent {
   genres: MirakurunGenre[];
   audios: MirakurunAudio[];
   relatedItems: MirakurunRelatedItem[];
+  series: MirakurunSeries
 }

@@ -16,8 +16,8 @@ const Item = (props: {
   isActive?: boolean
 }) => {
   if (props.isActive) {
-    return <div className="w-5 text-sm flex justify-center items-center font-bold h-32 [&:not(:last-child)]:border-yellow-500 bg-yellow-500 text-black">{props.hour}</div>
+    return <div className="w-5 text-sm flex justify-center items-center font-bold h-72 [&:not(:last-child)]:border-yellow-500 bg-yellow-500 text-black">{props.hour}</div>
   }
 
-  return <div className="w-5 text-sm flex justify-center items-center font-bold h-32 [&:not(:last-child)]:border-b-2 border-indigo-500">{props.hour}</div>
+  return <div className="w-5 text-sm flex justify-center items-center font-bold h-72 [&:not(:last-child)]:border-b-2 border-indigo-500">{props.hour}</div>
 }

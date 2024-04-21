@@ -3,26 +3,36 @@ import { useState, useEffect } from 'react';
 import { EPGHeader } from '@/components/epg/header';
 import { EPGTimeScale } from '@/components/epg/time_scale';
 import { EPGBody } from '@/components/epg/body';
-import { MirakurunEvent, MirakurunChannelList } from "@/models/mirakurun";
+import { MirakurunProgram, MirakurunChannelList, MirakurunChannel } from "@/models/mirakurun";
 import { mirakurun } from '@/gateway/mirakurun';
 
 // 番組表ページ
 export default function EPG() {
   const [channels, setChannels] = useState<MirakurunChannelList>([])
-  const [programs, setPrograms] = useState<Map<string, Array<MirakurunEvent>>>(new Map())
+  const [programs, setPrograms] = useState<{[defualtServiceId: number]: Array<MirakurunProgram>}>({})
 
   useEffect(() => {
-    mirakurun.fetchChannels().then(channels => {
-      setChannels(channels)
-    })
+    const data: {[defualtServiceId: number]: Array<MirakurunProgram>} = {}
+    const run = async () => {
+      const channels = await mirakurun.fetchChannels();
+      setChannels(channels);
 
-    mirakurun.fetchEventInfo(1).then(sampleProgram => {
-      const newPrograms = programs
-      newPrograms.set("16", [
-        sampleProgram, sampleProgram, sampleProgram,
-      ])
-      setPrograms(newPrograms)
-    })
+      channels.map((channel: MirakurunChannel) => {
+        const services = channel.services
+        const defaultService = services[0]
+        mirakurun.fetchPrograms(defaultService.serviceId).then(fetchedPrograms => {
+          data[defaultService.serviceId] = fetchedPrograms.slice(0, 30)  
+        })
+        return
+      })
+
+      setTimeout(() => {
+        console.log('d', data)
+        setPrograms(data)
+      }, 1900)
+    }
+
+    run()
   }, [])
 
   const headerLabels: Array<string> = [
@@ -36,7 +46,6 @@ export default function EPG() {
   channels.forEach(channel => {
     headerLabels.push(channel.name)
   })
-  console.log(channels)
 
   const currentHour = (new Date()).getHours()
 

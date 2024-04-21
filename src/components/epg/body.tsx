@@ -1,13 +1,13 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { MirakurunEvent } from "@/models/mirakurun";
+import { MirakurunProgram } from "@/models/mirakurun";
 import { EPGIndicator } from './indicator';
 
-type ChannelName = string
+type DefaultServiceId = number
 
 interface EPGBodyProps {
-  programs: Map<ChannelName, Array<MirakurunEvent>>
+  programs: {[defaultServiceId: DefaultServiceId]: Array<MirakurunProgram>}
   currentTime: number
 }
 
@@ -22,8 +22,8 @@ export const EPGBody = (props: EPGBodyProps) => {
   }, [ref])
 
   const columns: Array<React.ReactElement> = []
-  props.programs.forEach((programs, key) => {
-    columns.push(<BodyColumn key={key} programs={programs} currentTime={props.currentTime} />)
+  Object.entries(props.programs).forEach(([serviceId, programs]) => {
+    columns.push(<BodyColumn key={serviceId} programs={programs} currentTime={props.currentTime} />)
   })
 
   // TODO: 現在時刻のとこまで自動スクロール
@@ -34,9 +34,9 @@ export const EPGBody = (props: EPGBodyProps) => {
   </div>
 }
 
-const baseColumnHeight = 128
+const baseColumnHeight = 288
 const BodyColumnItem = (props: {
-  program: MirakurunEvent,
+  program: MirakurunProgram,
   currentTime: number,
 }) => {
   const { name, description, startAt, duration, eventId } = props.program
@@ -45,9 +45,9 @@ const BodyColumnItem = (props: {
   const height = parseInt(`${baseColumnHeight * hours}`)
 
   const baseClass = `p-2 text-black border-gray-500 border-b-2 overflow-hidden`
-  const normalClass = baseClass + " bw-white hover:opacity-85"
+  const normalClass = baseClass + " bg-white hover:opacity-85"
   const activeClass = baseClass + " bg-yellow-200 hover:opacity-85"
-  const endedClass = baseClass + " bg-gray-500"
+  const endedClass = baseClass + " bg-gray-400"
 
   const isActive = startAt <= props.currentTime && props.currentTime < startAt + duration
   const isEnded = startAt + duration < props.currentTime
@@ -75,7 +75,7 @@ const BodyColumnItem = (props: {
 }
 
 const BodyColumn = (props: {
-  programs: Array<MirakurunEvent>,
+  programs: Array<MirakurunProgram>,
   currentTime: number,
 }) => {
   const items = props.programs.map((program, index) => {
