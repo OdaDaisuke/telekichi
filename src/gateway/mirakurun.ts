@@ -1,3 +1,4 @@
+"use client";
 import { MirakurunChannelList, MirakurunChannelType, MirakurunEvent } from "@/models/mirakurun"
 import axios, { AxiosInstance } from "axios"
 
@@ -5,10 +6,18 @@ class Mirakurun {
   private readonly client: AxiosInstance
   constructor() {
     this.client = axios.create({
+      baseURL: "http://192.168.40.71:40772/api",
     })
   }
 
   async fetchChannels(): Promise<MirakurunChannelList> {
+    try {
+      const r = await this.client.get<MirakurunChannelList>("/channels?type=GR")
+      return r.data
+    } catch (e) {
+      return []
+    }
+
     const sampleService1 = {
       id: 3239123608,
       serviceId: 23608,

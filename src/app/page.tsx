@@ -1,26 +1,44 @@
+"use client";
+import { useState, useEffect } from 'react';
 import { EPGHeader } from '@/components/epg/header';
 import { EPGTimeScale } from '@/components/epg/time_scale';
 import { EPGBody } from '@/components/epg/body';
-import { MirakurunEvent } from "@/models/mirakurun";
+import { MirakurunEvent, MirakurunChannelList } from "@/models/mirakurun";
 import { mirakurun } from '@/gateway/mirakurun';
 
 // 番組表ページ
-export default async function EPG() {
-  const headerLabels = [
-    "NHK総合１・東京",
-    "NHKEテレ１・東京",
-    "日テレ１",
-    "テレビ朝日",
-    "TBS１",
-    "テレビ東京１",
-  ]
+export default function EPG() {
+  const [channels, setChannels] = useState<MirakurunChannelList>([])
+  const [programs, setPrograms] = useState<Map<string, Array<MirakurunEvent>>>(new Map())
 
-  const sampleProgram = await mirakurun.fetchEventInfo(1)
+  useEffect(() => {
+    mirakurun.fetchChannels().then(channels => {
+      setChannels(channels)
+    })
+
+    mirakurun.fetchEventInfo(1).then(sampleProgram => {
+      const newPrograms = programs
+      newPrograms.set("16", [
+        sampleProgram, sampleProgram, sampleProgram,
+      ])
+      setPrograms(newPrograms)
+    })
+  }, [])
+
+  const headerLabels: Array<string> = [
+    // "NHK総合１・東京",
+    // "NHKEテレ１・東京",
+    // "日テレ１",
+    // "テレビ朝日",
+    // "TBS１",
+    // "テレビ東京１",
+  ]
+  channels.forEach(channel => {
+    headerLabels.push(channel.name)
+  })
+  console.log(channels)
+
   const currentHour = (new Date()).getHours()
-  const programs = new Map<string, Array<MirakurunEvent>>()
-  programs.set("16", [
-    sampleProgram, sampleProgram, sampleProgram,
-  ])
 
   return (
     <div>

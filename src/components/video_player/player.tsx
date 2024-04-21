@@ -26,9 +26,18 @@ const _HLSPlayer = forwardRef<HTMLVideoElement, Props>(
         // safari
         video.src = src;
       } else if (Hls.isSupported()) {
-        const hls = new Hls();
+        console.log('supported')
+        const hls = new Hls({
+          debug: true,
+          liveDurationInfinity: true,
+        });
         hls.loadSource(src);
-        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+          hls.attachMedia(video);
+        })
+        hls.on(Hls.Events.ERROR, (e) => {
+          console.error('e', e)
+        })
       }
 
       return () => hls?.destroy();
