@@ -11,6 +11,10 @@
   - スマホUI・PC UI作る
   - 複数デバイスで簡単に再生できるのを前提にしたものにしたい
 
+## Icon
+
+https://icones.js.org/collection/lucide
+
 ## Getting Started
 
 First, run the development server:

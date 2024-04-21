@@ -34,7 +34,13 @@ const _HLSPlayer = forwardRef<HTMLVideoElement, Props>(
       return () => hls?.destroy();
     }, [manifestUrl]);
 
-    return <video {...props} ref={videoRef} />;
+    return <video
+      className="w-full h-full z-20 top-0 left-0"
+      {...props}
+      playsInline
+      autoPlay
+      ref={videoRef}
+    />;
   }
 );
 
