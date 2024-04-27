@@ -69,7 +69,10 @@ class Mirakurun {
       eventId: 9823,
       serviceId: 23609,
       networkId: 32391,
-      startAt: 1713272040000,
+      // 11:10
+      // startAt: 1714270200000,
+      // 11:00
+      startAt: 1714269600000,
       duration: 360000,
       isFree: true,
       _pf: true,

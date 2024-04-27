@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { MirakurunProgram } from "@/models/mirakurun";
 import { EPGIndicator } from './indicator';
+import { MirakurunPrograms } from '@/object_value/programs';
 
 type DefaultServiceId = number
 
@@ -33,6 +34,8 @@ export const EPGBody = (props: EPGBodyProps) => {
 }
 
 const baseColumnHeight = 288
+const egpHeight = baseColumnHeight * 24
+
 const BodyColumnItem = (props: {
   program: MirakurunProgram,
   currentTime: number,
@@ -58,6 +61,15 @@ const BodyColumnItem = (props: {
     selectedClass = endedClass
   }
 
+  // 今日の番組かどうか判定
+
+  // 最小height = 1 row
+  //最小番組5分とする
+
+  // 高さを1 row単位で変える
+  // 例えば54分で終わる番組は 55分に丸める
+  // 6分の番組は 5分に丸める
+
   return <div className={selectedClass} style={{height: `${height}px`}}>
     {(!isEnded) && <Link
       className="inline-block font-bold text-base mb-1 cursor-pointer"
@@ -76,10 +88,24 @@ const BodyColumn = (props: {
   programs: Array<MirakurunProgram>,
   currentTime: number,
 }) => {
-  const items = props.programs.map((program, index) => {
+  const programs = new MirakurunPrograms(props.programs)
+  const todayPrograms = programs.filterByToday(props.currentTime)
+
+  const rawStartAtSeconds = todayPrograms.getLatestStartAtSeconds(props.currentTime)
+
+  // 5分単位で丸める
+  const mod = rawStartAtSeconds % 300
+  const startAtSeconds = (mod < 150) ? rawStartAtSeconds - mod : rawStartAtSeconds + (300 - mod)
+  const offsetPercentage = startAtSeconds / 86400
+
+  // 時間をもとに始点のy座標を決める
+  const paddingTop = egpHeight * offsetPercentage
+  console.log('startAt', rawStartAtSeconds, offsetPercentage, paddingTop)
+
+  const items = todayPrograms.programs.map((program, index) => {
     return <BodyColumnItem key={index} program={program} currentTime={props.currentTime} />
   })
-  return <div className="flex-grow-0 flex-shrink-0 w-40">
+  return <div style={{paddingTop: `${paddingTop}px`}} className="flex-grow-0 flex-shrink-0 w-40">
     {items}
   </div>
 }
