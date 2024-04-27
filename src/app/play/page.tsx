@@ -81,11 +81,16 @@ export default function Play() {
   // const manifetsUrl = "http://192.168.40.71:40772/api/channels/GR/16/stream"
   // const manifestUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
 
+
   return <div className="w-full h-full fixed top-0 left-0 z-10 bg-black">
-    <HLSPlayer
+    <video autoPlay controls className="z-50 absolute">
+      <source src="http://192.168.40.71:40772/api/channels/GR/16/stream" type="video/mp2t" />
+      Your browser does not support the video tag.
+    </video>
+    {/* <HLSPlayer
       manifestUrl={manifetsUrl}
       ref={setVideo}
-    />
+    /> */}
     <header className="absolute top-0 left-0 pt-4 pl-4 w-full h-24 bg-gradient-to-b from-gray-500 to-blugraye-300 to-transparent">
       <GoBack onClick={onClickGoback}/>
       <h3 className="absolute text-2xl font-bold left-24 pt-3">{programInfo?.name}</h3>

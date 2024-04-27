@@ -26,8 +26,6 @@ export const EPGBody = (props: EPGBodyProps) => {
     columns.push(<BodyColumn key={serviceId} programs={programs} currentTime={props.currentTime} />)
   })
 
-  // TODO: 現在時刻のとこまで自動スクロール
-
   return <div ref={ref} className="w-full flex relative">
     <EPGIndicator currentTime={props.currentTime} parentHeight={height} />
     {columns}
