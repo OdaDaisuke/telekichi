@@ -11,36 +11,13 @@ class Mirakurun {
   }
 
   async fetchChannels(): Promise<MirakurunChannelList> {
-    // try {
-    //   const r = await this.client.get<MirakurunChannelList>("/channels?type=GR")
-    //   return r.data
-    // } catch (e) {
-    //   return []
-    // }
-
-    const sampleService1 = {
-      id: 3239123608,
-      serviceId: 23608,
-      networkId: 32391,
-      name: "ＴＯＫＹＯ　ＭＸ１",
+    try {
+      const r = await this.client.get<MirakurunChannelList>("/channels?type=GR")
+      return r.data
+    } catch (e) {
+      return []
     }
-    const sampleService2 = {
-      id: 3239123609,
-      serviceId: 23610,
-      networkId: 32391,
-      name: "ＴＯＫＹＯ　ＭＸ２",
-    }
-    return [
-      {
-        type: "GR",
-        channel: "16",
-        name: "ＴＯＫＹＯ　ＭＸ",
-        services: [sampleService1, sampleService2],
-      }
-    ]
-  }
 
-  async fetchChannelsByType(channelType: MirakurunChannelType): Promise<MirakurunChannelList> {
     const sampleService1 = {
       id: 3239123608,
       serviceId: 23608,
@@ -64,6 +41,12 @@ class Mirakurun {
   }
 
   async fetchPrograms(serviceId: number): Promise<Array<MirakurunProgram>> {
+    try {
+      const r = await this.client.get<Array<MirakurunProgram>>(`/programs?serviceId=${serviceId}`)
+      return r.data
+    } catch (e) {
+      return []
+    }
     return [{
       id: 323912360909823,
       eventId: 9823,
@@ -72,7 +55,7 @@ class Mirakurun {
       // 11:10
       // startAt: 1714270200000,
       // 11:00
-      startAt: 1714269600000,
+      startAt: 1714356720000,
       duration: 360000,
       isFree: true,
       _pf: true,
@@ -128,12 +111,6 @@ class Mirakurun {
         name: "",
       },
     }]
-    // try {
-    //   const r = await this.client.get<Array<MirakurunProgram>>(`/programs?serviceId=${serviceId}`)
-    //   return r.data
-    // } catch (e) {
-    //   return []
-    // }
   }
 
   /**

@@ -8,7 +8,7 @@ import { MirakurunPrograms } from '@/object_value/programs';
 type DefaultServiceId = number
 
 interface EPGBodyProps {
-  programs: {[defaultServiceId: DefaultServiceId]: Array<MirakurunProgram>}
+  programsPerService: {[defaultServiceId: DefaultServiceId]: Array<MirakurunProgram>}
   currentTime: number
 }
 
@@ -23,7 +23,7 @@ export const EPGBody = (props: EPGBodyProps) => {
   }, [ref])
 
   const columns: Array<React.ReactElement> = []
-  Object.entries(props.programs).forEach(([serviceId, programs]) => {
+  Object.entries(props.programsPerService).forEach(([serviceId, programs]) => {
     columns.push(<BodyColumn key={serviceId} programs={programs} currentTime={props.currentTime} />)
   })
 
@@ -90,8 +90,10 @@ const BodyColumn = (props: {
 }) => {
   const programs = new MirakurunPrograms(props.programs)
   const todayPrograms = programs.filterByToday(props.currentTime)
+  console.log('today', todayPrograms)
 
   const rawStartAtSeconds = todayPrograms.getLatestStartAtSeconds(props.currentTime)
+  console.log('latest start at', rawStartAtSeconds)
 
   // 5分単位で丸める
   const mod = rawStartAtSeconds % 300
@@ -100,7 +102,6 @@ const BodyColumn = (props: {
 
   // 時間をもとに始点のy座標を決める
   const paddingTop = egpHeight * offsetPercentage
-  console.log('startAt', rawStartAtSeconds, offsetPercentage, paddingTop)
 
   const items = todayPrograms.programs.map((program, index) => {
     return <BodyColumnItem key={index} program={program} currentTime={props.currentTime} />

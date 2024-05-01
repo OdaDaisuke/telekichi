@@ -9,7 +9,7 @@ import { mirakurun } from '@/gateway/mirakurun';
 // 番組表ページ
 export default function EPG() {
   const [channels, setChannels] = useState<MirakurunChannelList>([])
-  const [programs, setPrograms] = useState<{[defualtServiceId: number]: Array<MirakurunProgram>}>({})
+  const [programsPerService, setPrograms] = useState<{[defualtServiceId: number]: Array<MirakurunProgram>}>({})
 
   useEffect(() => {
     const data: {[defualtServiceId: number]: Array<MirakurunProgram>} = {}
@@ -21,15 +21,14 @@ export default function EPG() {
         const services = channel.services
         const defaultService = services[0]
         mirakurun.fetchPrograms(defaultService.serviceId).then(fetchedPrograms => {
-          data[defaultService.serviceId] = fetchedPrograms.slice(0, 30)  
+          data[defaultService.serviceId] = fetchedPrograms.slice(0, 1000)  
         })
         return
       })
 
       setTimeout(() => {
-        console.log('d', data)
         setPrograms(data)
-      }, 1900)
+      }, 2000)
     }
 
     run()
@@ -51,10 +50,10 @@ export default function EPG() {
 
   return (
     <div>
-      <EPGHeader labels={headerLabels}/>
+      <EPGHeader channels={channels}/>
       <div className="flex">
         <EPGTimeScale currentHour={currentHour}/>
-        <EPGBody programs={programs} currentTime={(new Date()).getTime()}/>
+        <EPGBody programsPerService={programsPerService} currentTime={(new Date()).getTime()}/>
       </div>
     </div>
   );

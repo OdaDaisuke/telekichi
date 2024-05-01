@@ -1,3 +1,5 @@
+import { MirakurunChannelList } from "@/models/mirakurun";
+
 const EPGHeaderItem = (props: {
   label: string
 }) => {
@@ -7,14 +9,14 @@ const EPGHeaderItem = (props: {
 }
 
 interface EPGHeaderProps {
-  labels: Array<string>
+  channels: MirakurunChannelList
 }
 
 export const EPGHeader = (props: EPGHeaderProps) => {
   return <header className="flex">
     <div className="flex-grow-0 flex-shrink-0 block w-6"></div>
-    {props.labels.map((label, index) => {
-      return <EPGHeaderItem key={index} label={label} />
+    {props.channels.map((channel, index) => {
+      return <EPGHeaderItem key={index} label={channel.name} />
     })}
   </header>
 }
