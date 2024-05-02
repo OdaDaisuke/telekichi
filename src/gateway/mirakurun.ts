@@ -114,20 +114,18 @@ class Mirakurun {
   }
 
   /**
-   * 特定の番組の再生可能URLを取得する
-   * @param serviceId mirakurunのserviceId
-   * @returns 再生可能URL
-   */
-  async fetchPlayableUrl(serviceId: number): Promise<string> {
-    return ""
-  }
-
-  /**
    * 番組の情報取得
    * @param programId 番組ID
    * @returns 
    */
   async fetchProgramInfo(programId: number): Promise<MirakurunProgram> {
+    try {
+      const r = await this.client.get<MirakurunProgram>(`/programs/${programId}`)
+      return r.data
+    } catch (e) {
+      throw e
+    }
+
     return {
       id: 323912360909823,
       eventId: 9823,

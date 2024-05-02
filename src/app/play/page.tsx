@@ -1,27 +1,53 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { HLSPlayer } from '@/components/video_player/player';
+import { useKey } from 'react-use';
 import { Volume } from '@/components/video_player/volume';
 import { GoBack } from '@/components/video_player/go_back';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { mirakurun } from '@/gateway/mirakurun';
 import { MirakurunProgram } from '@/models/mirakurun';
-import { useRef } from 'react';
+import { MirakurunChannelList } from '@/models/mirakurun'
+import { getNextChannel } from '@/object_value/channels'
 
 // 番組再生ページ
 export default function Play() {
+  const searchParams = useSearchParams()
+  const params = {
+    ctype: searchParams.get('ctype'),
+    cid: searchParams.get('cid') || "",
+    sid: searchParams.get('sid'),
+    pid: parseInt(`${searchParams.get('pid')}`, 10),
+  }
+
   const router = useRouter()
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const [volume, setVolumeState] = useState(1)
   const [muted, setMuted] = useState(false)
   const [enabledInfoUI, setInfoUI] = useState(false)
   const [programInfo, setProgramInfo] = useState<MirakurunProgram | null>(null)
+  const [channels, setChannels] = useState<MirakurunChannelList>([])
   const finalVolume = muted ? 0 : volume ** 2
 
+  // アルファ版(キーボード操作による番組切り替え)
+  useKey('ArrowLeft', (e: KeyboardEvent) => {
+    console.log('e', e)
+  });
+  useKey('ArrowRight', (e: KeyboardEvent) => {
+    const nextChannel = getNextChannel(params.cid, channels)
+    console.log('next', nextChannel)
+    // router.push(`/play?ctype=${params.ctype}&cid=${nextChannel.channel}&sid=${nextChannel.services[0].id}&pid=327390104816587`)
+    // setTimeout(() => {
+    //   location.reload()
+    // }, 100)
+  }, undefined, [channels]);
+
   useEffect(() => {
-    const programId = 0
-    mirakurun.fetchProgramInfo(programId).then((program: MirakurunProgram) => {
+    mirakurun.fetchProgramInfo(params.pid).then((program: MirakurunProgram) => {
       setProgramInfo(program)
+    })
+
+    mirakurun.fetchChannels().then(channels => {
+      setChannels(channels)
     })
   }, [])
 
@@ -64,9 +90,6 @@ export default function Play() {
   }
 
   const onClickOpenInfo = () => {
-    if (video) {
-      video.pause()
-    }
     setInfoUI(true)
   }
 
@@ -77,17 +100,14 @@ export default function Play() {
     setInfoUI(false)
   }
 
-  // ~/dev/sandbox/webm_serverのURL
-  const manifestUrl = "http://localhost:8081/stream"
+  // proxy serverのURL
+  // const playableUrl = "http://localhost:8081/stream/GR/16/services/3239123608"
+  const playableUrl = `http://localhost:8081/stream/${params.ctype}/${params.cid}/services/${params.sid}`
 
   return <div className="w-full h-full fixed top-0 left-0 z-10 bg-black">
-    <video controls>
-      <source src="http://localhost:8081/stream" type="video/webm"></source>
+    <video ref={setVideo} className="w-full h-full">
+      <source src={playableUrl} type="video/webm"></source>
     </video>
-    <HLSPlayer
-      manifestUrl={manifestUrl}
-      ref={setVideo}
-    />
     <header className="absolute top-0 left-0 pt-4 pl-4 w-full h-24 bg-gradient-to-b from-gray-500 to-blugraye-300 to-transparent">
       <GoBack onClick={onClickGoback}/>
       <h3 className="absolute text-2xl font-bold left-24 pt-3">{programInfo?.name}</h3>

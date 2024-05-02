@@ -4,11 +4,19 @@ import Link from 'next/link';
 import { MirakurunProgram } from "@/models/mirakurun";
 import { EPGIndicator } from './indicator';
 import { MirakurunPrograms } from '@/object_value/programs';
+import { channel } from 'diagnostics_channel';
 
 type DefaultServiceId = number
 
+export type EGPType = Array<{
+  channelType: string,
+  channelId: string,
+  serviceId: number
+  programs: Array<MirakurunProgram>
+}>
+
 interface EPGBodyProps {
-  programsPerService: {[defaultServiceId: DefaultServiceId]: Array<MirakurunProgram>}
+  programsPerService: EGPType
   currentTime: number
 }
 
@@ -23,8 +31,15 @@ export const EPGBody = (props: EPGBodyProps) => {
   }, [ref])
 
   const columns: Array<React.ReactElement> = []
-  Object.entries(props.programsPerService).forEach(([serviceId, programs]) => {
-    columns.push(<BodyColumn key={serviceId} programs={programs} currentTime={props.currentTime} />)
+  props.programsPerService.map((channelAndPrograms) => {
+    columns.push(<BodyColumn
+      key={channelAndPrograms.serviceId}
+      programs={channelAndPrograms.programs}
+      currentTime={props.currentTime}
+      channelType={channelAndPrograms.channelType}
+      channelId={channelAndPrograms.channelId}
+      serviceId={channelAndPrograms.serviceId}
+    />)
   })
 
   return <div ref={ref} className="w-full flex relative">
@@ -39,8 +54,11 @@ const egpHeight = baseColumnHeight * 24
 const BodyColumnItem = (props: {
   program: MirakurunProgram,
   currentTime: number,
+  channelId: string,
+  channelType: string,
+  serviceId: number,
 }) => {
-  const { name, description, startAt, duration, eventId } = props.program
+  const { id, name, description, startAt, duration } = props.program
   const minutes = new Date(startAt).getMinutes()
   const hours = (duration / 1000) / 3600
   const height = parseInt(`${baseColumnHeight * hours}`)
@@ -73,7 +91,7 @@ const BodyColumnItem = (props: {
   return <div className={selectedClass} style={{height: `${height}px`}}>
     {(!isEnded) && <Link
       className="inline-block font-bold text-base mb-1 cursor-pointer"
-      href={{ pathname: '/play', query: { pid: eventId }}}
+      href={{ pathname: '/play', query: { ctype: props.channelType, cid: props.channelId, sid: props.serviceId, pid: id }}}
     >
       <span className="inline-block text-xs mr-1 text-gray-500">{minutes}</span>{name}
     </Link>}
@@ -87,13 +105,14 @@ const BodyColumnItem = (props: {
 const BodyColumn = (props: {
   programs: Array<MirakurunProgram>,
   currentTime: number,
+  channelType: string,
+  channelId: string,
+  serviceId: number,
 }) => {
   const programs = new MirakurunPrograms(props.programs)
   const todayPrograms = programs.filterByToday(props.currentTime)
-  console.log('today', todayPrograms)
 
   const rawStartAtSeconds = todayPrograms.getLatestStartAtSeconds(props.currentTime)
-  console.log('latest start at', rawStartAtSeconds)
 
   // 5分単位で丸める
   const mod = rawStartAtSeconds % 300
@@ -104,7 +123,13 @@ const BodyColumn = (props: {
   const paddingTop = egpHeight * offsetPercentage
 
   const items = todayPrograms.programs.map((program, index) => {
-    return <BodyColumnItem key={index} program={program} currentTime={props.currentTime} />
+    return <BodyColumnItem
+      key={index}
+      program={program}
+      channelId={props.channelId}
+      channelType={props.channelType}
+      serviceId={props.serviceId}
+      currentTime={props.currentTime} />
   })
   return <div style={{paddingTop: `${paddingTop}px`}} className="flex-grow-0 flex-shrink-0 w-40">
     {items}

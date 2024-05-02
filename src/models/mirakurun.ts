@@ -9,6 +9,7 @@ export type MirakurunChannelType = "GR" | "BS" | "CS"
 
 export interface MirakurunChannel {
   type: MirakurunChannelType
+  // channelId: 例 "16"
   channel: string
   name: string
   services: MirakurunService[]

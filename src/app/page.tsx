@@ -2,17 +2,17 @@
 import { useState, useEffect } from 'react';
 import { EPGHeader } from '@/components/epg/header';
 import { EPGTimeScale } from '@/components/epg/time_scale';
-import { EPGBody } from '@/components/epg/body';
+import { EPGBody, EGPType } from '@/components/epg/body';
 import { MirakurunProgram, MirakurunChannelList, MirakurunChannel } from "@/models/mirakurun";
 import { mirakurun } from '@/gateway/mirakurun';
 
 // 番組表ページ
 export default function EPG() {
   const [channels, setChannels] = useState<MirakurunChannelList>([])
-  const [programsPerService, setPrograms] = useState<{[defualtServiceId: number]: Array<MirakurunProgram>}>({})
+  const [programsPerService, setPrograms] = useState<EGPType>([])
 
   useEffect(() => {
-    const data: {[defualtServiceId: number]: Array<MirakurunProgram>} = {}
+    const data: EGPType = []
     const run = async () => {
       const channels = await mirakurun.fetchChannels();
       setChannels(channels);
@@ -21,7 +21,12 @@ export default function EPG() {
         const services = channel.services
         const defaultService = services[0]
         mirakurun.fetchPrograms(defaultService.serviceId).then(fetchedPrograms => {
-          data[defaultService.serviceId] = fetchedPrograms.slice(0, 1000)  
+          data.push({
+            channelType: channel.type,
+            channelId: channel.channel,
+            serviceId: defaultService.id,
+            programs: fetchedPrograms.slice(0, 1000),
+          })
         })
         return
       })
