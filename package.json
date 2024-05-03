@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
-    "hls.js": "^1.5.8",
     "leveldown": "^6.1.1",
     "levelup": "^5.1.1",
+    "libtelekichi": "file:lib/telekichi",
     "next": "14.2.2",
     "react": "^18",
     "react-dom": "^18",
@@ -25,7 +25,6 @@
     "@iconify-json/mdi": "^1.1.66",
     "@iconify/json": "^2.2.202",
     "@types/axios": "^0.14.0",
-    "@types/hls.js": "^1.0.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
