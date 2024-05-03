@@ -4,9 +4,6 @@ import Link from 'next/link';
 import { MirakurunProgram } from "@/models/mirakurun";
 import { EPGIndicator } from './indicator';
 import { MirakurunPrograms } from '@/object_value/programs';
-import { channel } from 'diagnostics_channel';
-
-type DefaultServiceId = number
 
 export type EGPType = Array<{
   channelType: string,
@@ -110,9 +107,10 @@ const BodyColumn = (props: {
   serviceId: number,
 }) => {
   const programs = new MirakurunPrograms(props.programs)
-  const todayPrograms = programs.filterByToday(props.currentTime)
+  const todayPrograms = programs.filterByToday(props.currentTime).sortByStartAt()
 
   const rawStartAtSeconds = todayPrograms.getLatestStartAtSeconds(props.currentTime)
+  console.log('raw', rawStartAtSeconds)
 
   // 5分単位で丸める
   const mod = rawStartAtSeconds % 300
@@ -131,7 +129,7 @@ const BodyColumn = (props: {
       serviceId={props.serviceId}
       currentTime={props.currentTime} />
   })
-  return <div style={{paddingTop: `${paddingTop}px`}} className="flex-grow-0 flex-shrink-0 w-40">
+  return <div style={{paddingTop: `${paddingTop}px`, height: `${egpHeight}px`, overflow: 'hidden'}} className="flex-grow-0 flex-shrink-0 w-40">
     {items}
   </div>
 }

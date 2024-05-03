@@ -16,6 +16,13 @@ export class MirakurunPrograms {
     return new MirakurunPrograms(filtered)
   }
 
+  sortByStartAt(): MirakurunPrograms {
+    const sorted =  this.programs.sort((a, b) => {
+      return a.startAt - b.startAt
+    })
+    return new MirakurunPrograms(sorted)
+  }
+
   // その日の何秒から最初の番組が始まるか取得
   getLatestStartAtSeconds(currentTime: number): number {
     const today = new Date(currentTime)
@@ -39,6 +46,7 @@ export class MirakurunPrograms {
       return 0
     }
 
+    console.log('min', min)
     return parseInt(`${(min - todayStartAtTimestamp) / 1000}`, 10)
   }
 }

@@ -9,14 +9,14 @@ interface EPGIndicatorProps {
 export const EPGIndicator = (props: EPGIndicatorProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const maxMin = 60 * 24
+  const maxMinute = 60 * 24
 
   const d = new Date(props.currentTime)
   const h = d.getHours()
   const m = d.getMinutes()
 
   const current = h * 60 + m
-  const currentPercentage = (current / maxMin) * 100
+  const currentPercentage = (current / maxMinute) * 100
 
   const displayH = `0${h}`.slice(-2)
   const displayM = `0${m}`.slice(-2)
