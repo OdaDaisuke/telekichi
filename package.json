@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
-    "leveldown": "^6.1.1",
-    "levelup": "^5.1.1",
     "libtelekichi": "file:lib/telekichi",
     "next": "14.2.2",
     "react": "^18",
     "react-dom": "^18",
-    "react-use": "^17.5.0"
+    "react-use": "^17.5.0",
+    "sqlite3": "^5.1.7",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.7.4",
@@ -28,6 +28,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.8",
     "eslint": "^8",
     "eslint-config-next": "14.2.2",
     "postcss": "^8",

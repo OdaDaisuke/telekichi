@@ -61,12 +61,12 @@ const setupDb = () => {
     if (err) {
       return console.log('Ooops!', err)
     }
-  
+
     db.get('name', function (err, value) {
       if (err) {
         return console.log('Ooops!', err)
       }
-  
+
       console.log('name=' + value)
     })
   })  
