@@ -1,5 +1,4 @@
-"use client";
-import { MirakurunChannelList, MirakurunChannelType, MirakurunProgram } from "@/models/mirakurun"
+import { MirakurunChannelList, MirakurunProgram } from "@/models/mirakurun"
 import axios, { AxiosInstance } from "axios"
 
 class Mirakurun {

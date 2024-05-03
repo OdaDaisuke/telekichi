@@ -8,7 +8,7 @@ import cron from 'node-cron'
 
 const record = (durationSec) => {
   const inputOriginHost = 'http://192.168.40.71:40772'
-  const inputSource = `http://192.168.40.71:40772/api/channels/GR/21/services/3274001056/stream`
+  const inputSource = `http://192.168.40.71:40772/api/channels/GR/26/services/3273701032/stream`
   const d = new Date()
 
   const outputFilename = `./output${d.getTime()}.webm`

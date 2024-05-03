@@ -6,7 +6,6 @@ export type RecordingType = "single"
 export class RecordingMetadata {
   private readonly metadata: {
     scheduleId: string,
-    cron: string,
     cid: string,
     sid: number,
     program: MirakurunProgram,
@@ -14,10 +13,9 @@ export class RecordingMetadata {
     recordingType: RecordingType
   }
 
-  constructor(scheduleId: string, cron: string, cid: string, sid: number, program: MirakurunProgram, startAt: number, recordingType: RecordingType) {
-    this. metadata = {
+  constructor(scheduleId: string, cid: string, sid: number, program: MirakurunProgram, startAt: number, recordingType: RecordingType) {
+    this.metadata = {
       scheduleId,
-      cron,
       cid,
       sid,
       program,

@@ -7,7 +7,7 @@ const run = () => {
   db.run("CREATE TABLE recording_schedules(id VARCHAR(36) PRIMARY KEY)")
 
   // recording_schedule_metadat
-  db.run("CREATE TABLE recording_schedule_metadata(schedule_id VARCHAR(36) PRIMARY KEY, cron VARCHAR(16), program_info JSON)")
+  db.run("CREATE TABLE recording_schedule_metadata(schedule_id VARCHAR(36) PRIMARY KEY, start_at integer, program_info JSON)")
 }
 
 run()

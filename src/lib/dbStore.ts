@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { RecordingType, RecordingMetadata } from '@/models/recording'
+import { RecordingScheduleMetadata } from '@/models/recording_schedule'
 import { DbClient }from './dbClient'
 import { timestampToCron } from './util'
 import { MirakurunProgram } from '@/models/mirakurun'
@@ -19,8 +20,9 @@ class DbStore {
     return this.dbClient.getRecordingSchedules()
   }
 
-  // getRecordingScheduleList = async (scheduleIds: Array<string>): Promise<any> => {
-  // }
+  getRecordingScheduleMetadataList = async (): Promise<Array<RecordingScheduleMetadata>> => {
+    return this.dbClient.getRecordingScheduleMetadataList()
+  }
 
   createRecordingSchedule = async (cid: string, sid: number, program: MirakurunProgram, startAt: number, recordingType: RecordingType) => {
     const scheduleId = crypto.randomUUID()
@@ -29,19 +31,20 @@ class DbStore {
     await this.addRecordingScheduleList(scheduleId)
 
     // 録画のためのメタデータ保存
-    const cron = timestampToCron(startAt)
-    console.log('cron', cron)
-    const metadata = new RecordingMetadata(scheduleId, cron, cid, sid, program, startAt, recordingType)
-    await this.saveRecordingScheduleMetadata(scheduleId, metadata)
+    const metadata = new RecordingMetadata(scheduleId, cid, sid, program, startAt, recordingType)
+    await this.saveRecordingScheduleMetadata(scheduleId, startAt, metadata)
   }
 
-  public addRecordingScheduleList = async (scheduleId: string) => {
+  deleteRecordingSchedule = async (scheduleId: string) => {
+    this.dbClient.deleteRecordingSchedule(scheduleId)
+  }
+
+  addRecordingScheduleList = async (scheduleId: string) => {
     this.dbClient.addRecordingSchedule(scheduleId)
   }
 
-  private saveRecordingScheduleMetadata = async (scheduleId: string, metadata: RecordingMetadata) => {
-    const data = metadata.toJSON()
-    await this.dbClient.createRecordingScheduleMetadata(scheduleId, data)
+  private saveRecordingScheduleMetadata = async (scheduleId: string, startAt: number, metadata: RecordingMetadata) => {
+    await this.dbClient.createRecordingScheduleMetadata(scheduleId, startAt, metadata.toJSON())
   }
 }
 
