@@ -3,12 +3,14 @@
 # dependencies
 /node_modules
 proxy/node_modules
+recorder/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
 
 # testing
 /coverage
+*.webm
 
 # next.js
 /.next/

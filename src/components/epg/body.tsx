@@ -129,7 +129,7 @@ const BodyColumn = (props: {
       serviceId={props.serviceId}
       currentTime={props.currentTime} />
   })
-  return <div style={{paddingTop: `${paddingTop}px`, height: `${egpHeight}px`, overflow: 'hidden'}} className="flex-grow-0 flex-shrink-0 w-40">
+  return <div style={{paddingTop: `${paddingTop}px`, height: `${egpHeight}px`, overflow: 'hidden', borderRight: '1px dotted #fff'}} className="flex-grow-0 flex-shrink-0 w-40">
     {items}
   </div>
 }

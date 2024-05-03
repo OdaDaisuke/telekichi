@@ -10,8 +10,13 @@ import { mirakurun } from '@/gateway/mirakurun';
 export default function EPG() {
   const [channels, setChannels] = useState<MirakurunChannelList>([])
   const [programsPerService, setPrograms] = useState<EGPType>([])
+  const [currentTime, setCurrentTime] = useState<number>((new Date()).getTime())
 
   useEffect(() => {
+    setInterval(() => {
+      setCurrentTime((new Date()).getTime())
+    }, 1000 * 30)
+
     const data: EGPType = []
     const run = async () => {
       const channels = await mirakurun.fetchChannels();
@@ -39,14 +44,7 @@ export default function EPG() {
     run()
   }, [])
 
-  const headerLabels: Array<string> = [
-    // "NHK総合１・東京",
-    // "NHKEテレ１・東京",
-    // "日テレ１",
-    // "テレビ朝日",
-    // "TBS１",
-    // "テレビ東京１",
-  ]
+  const headerLabels: Array<string> = []
   channels.forEach(channel => {
     headerLabels.push(channel.name)
   })
@@ -58,7 +56,7 @@ export default function EPG() {
       <EPGHeader channels={channels}/>
       <div className="flex">
         <EPGTimeScale currentHour={currentHour}/>
-        <EPGBody programsPerService={programsPerService} currentTime={(new Date()).getTime()}/>
+        <EPGBody programsPerService={programsPerService} currentTime={currentTime}/>
       </div>
     </div>
   );
