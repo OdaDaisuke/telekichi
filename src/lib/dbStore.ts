@@ -2,7 +2,6 @@ import crypto from 'crypto'
 import { RecordingType, RecordingMetadata } from '@/models/recording'
 import { RecordingScheduleMetadata } from '@/models/recording_schedule'
 import { DbClient }from './dbClient'
-import { timestampToCron } from './util'
 import { MirakurunProgram } from '@/models/mirakurun'
 
 class DbStore {

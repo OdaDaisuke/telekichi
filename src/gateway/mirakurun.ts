@@ -1,5 +1,5 @@
-import { MirakurunChannelList, MirakurunProgram } from "@/models/mirakurun"
 import axios, { AxiosInstance } from "axios"
+import { MirakurunChannelList, MirakurunProgram } from "@/models/mirakurun"
 
 class Mirakurun {
   private readonly client: AxiosInstance
@@ -16,27 +16,6 @@ class Mirakurun {
     } catch (e) {
       return []
     }
-
-    const sampleService1 = {
-      id: 3239123608,
-      serviceId: 23608,
-      networkId: 32391,
-      name: "ＴＯＫＹＯ　ＭＸ１",
-    }
-    const sampleService2 = {
-      id: 3239123609,
-      serviceId: 23610,
-      networkId: 32391,
-      name: "ＴＯＫＹＯ　ＭＸ２",
-    }
-    return [
-      {
-        type: "GR",
-        channel: "16",
-        name: "ＴＯＫＹＯ　ＭＸ",
-        services: [sampleService1, sampleService2],
-      }
-    ]
   }
 
   async fetchPrograms(serviceId: number): Promise<Array<MirakurunProgram>> {
@@ -46,70 +25,6 @@ class Mirakurun {
     } catch (e) {
       return []
     }
-    return [{
-      id: 323912360909823,
-      eventId: 9823,
-      serviceId: 23609,
-      networkId: 32391,
-      // 11:10
-      // startAt: 1714270200000,
-      // 11:00
-      startAt: 1714356720000,
-      duration: 360000,
-      isFree: true,
-      _pf: true,
-      name: "至高のひととき～多摩・立川　オトナ時間～",
-      description: "甘露納豆みツ橋",
-      video: {
-        "type": "mpeg2",
-        "resolution": "1080i",
-        "streamContent": 1,
-        "componentType": 179
-      },
-      genres: [
-        {
-          "lv1": 2,
-          "lv2": 2,
-          "un1": 15,
-          "un2": 15
-        },
-        {
-          "lv1": 5,
-          "lv2": 5,
-          "un1": 15,
-          "un2": 15
-        },
-        {
-          "lv1": 8,
-          "lv2": 4,
-          "un1": 15,
-          "un2": 15
-        }
-      ],
-      audios: [
-        {
-          "componentType": 3,
-          "componentTag": 16,
-          "isMain": true,
-          "samplingRate": 48000,
-          "langs": [ "jpn" ]
-        }
-      ],
-      relatedItems: [
-        {
-          "type": "shared", "serviceId": 23608, "eventId": 9823
-        }
-      ],
-      series: {
-        id: 1,
-        repeat: 0,
-        pattern: 7,
-        expiresAt: 0,
-        episode: 4095,
-        lastEpisode: 4095,
-        name: "",
-      },
-    }]
   }
 
   /**
@@ -123,68 +38,6 @@ class Mirakurun {
       return r.data
     } catch (e) {
       throw e
-    }
-
-    return {
-      id: 323912360909823,
-      eventId: 9823,
-      serviceId: 23609,
-      networkId: 32391,
-      startAt: 1713272040000,
-      duration: 360000,
-      isFree: true,
-      _pf: true,
-      name: "至高のひととき～多摩・立川　オトナ時間～",
-      description: "甘露納豆みツ橋",
-      video: {
-        "type": "mpeg2",
-        "resolution": "1080i",
-        "streamContent": 1,
-        "componentType": 179
-      },
-      genres: [
-        {
-          "lv1": 2,
-          "lv2": 2,
-          "un1": 15,
-          "un2": 15
-        },
-        {
-          "lv1": 5,
-          "lv2": 5,
-          "un1": 15,
-          "un2": 15
-        },
-        {
-          "lv1": 8,
-          "lv2": 4,
-          "un1": 15,
-          "un2": 15
-        }
-      ],
-      audios: [
-        {
-          "componentType": 3,
-          "componentTag": 16,
-          "isMain": true,
-          "samplingRate": 48000,
-          "langs": [ "jpn" ]
-        }
-      ],
-      relatedItems: [
-        {
-          "type": "shared", "serviceId": 23608, "eventId": 9823
-        }
-      ],
-      series: {
-        id: 1,
-        repeat: 0,
-        pattern: 7,
-        expiresAt: 0,
-        episode: 4095,
-        lastEpisode: 4095,
-        name: "",
-      },
     }
   }
 }

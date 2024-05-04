@@ -1,17 +1,22 @@
 import { spawn } from 'child_process'
-import levelup from 'levelup'
-import leveldown from 'leveldown'
 import cron from 'node-cron'
+import { apiClient } from './api_client.js'
+import { timestampToCron } from 'libtelekichi'
 
-// dbからデータ一覧引っ張ってくる
-// cron実行
+console.log('starting recorder')
 
-const record = (durationSec) => {
-  const inputOriginHost = 'http://192.168.40.71:40772'
-  const inputSource = `http://192.168.40.71:40772/api/channels/GR/26/services/3273701032/stream`
+// 実際の設定時刻の何秒前に録画プロセス開始するか[ms]
+// 意図：録画プロセス開始から実際に録画開始するまでの遅延を考慮するため
+const recordingStartTimeOffset = -(1000 * 5)
+
+const record = (durationSec, channel, serviceId, pid) => {
+  const channelType = 'GR'
+  // const inputSource = `http://192.168.40.71:40772/api/channels/GR/26/services/3273701032/stream`
+  const inputSource = `http://192.168.40.71:40772/api/channels/${channelType}/${channel}/services/${serviceId}/stream`
+
   const d = new Date()
+  const outputFilename = `./output_${channelType}_${channel}_${serviceId}_${pid}_${d.getTime()}.webm`
 
-  const outputFilename = `./output${d.getTime()}.webm`
   const ffmpegProcess = spawn('ffmpeg', [
     '-re',
     '-dual_mono_mode', 'main',
@@ -24,7 +29,7 @@ const record = (durationSec) => {
     '-ac', '2',
     '-c:v', 'libvpx-vp9',
     '-vf', 'yadif,setdar=dar=16/9,scale=(dar*oh):1080',
-    '-b:v', '7200k',
+    '-b:v', '9000k',
     '-deadline', 'realtime',
     '-speed', '4',
     '-t', durationSec,
@@ -41,33 +46,51 @@ const record = (durationSec) => {
   ffmpegProcess.on('close', (code) => {
     console.log(`ffmpeg process exited with code ${code}`);
   });
+  // ffmpegProcess.kill()
 }
 
 const startRecordingScheduler = () => {
-  // unix timestampからcron tabに変換する
-  cron.schedule('* * * * *', () => {
-    const durationSec = 10
-    record(durationSec)
-    console.log('end recording')
-  });
+  const queuedScheduleIdList = new Set()
+
+  // APIからスケジュールを取得して、キューしてないものがあればcron設定
+  const pullAndScheduleRecording = async () => {
+    const scheduleList = await apiClient.fetchRecordingScheduleList()
+
+    const currentTime = (new Date()).getTime()
+
+    // 放送中のスケジュールがあれば即時録画
+    // FIXME: 録画を即時停止したい場合に対応
+    const ongoingSchedule = scheduleList.getOngoingSchedule(currentTime)
+    if (ongoingSchedule !== null && !queuedScheduleIdList.has(ongoingSchedule.scheduleId)) {
+      const endAt = ongoingSchedule.programInfo.program.startAt + ongoingSchedule.programInfo.program.duration
+      const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
+      const pid = ongoingSchedule.programInfo.id
+      const sid = ongoingSchedule.programInfo.sid
+      const cid = ongoingSchedule.programInfo.cid
+
+      console.log('start ongoing recording', ongoingSchedule.scheduleId, cid, sid, `${durationSec}sec`)
+      record(durationSec, cid, sid, pid)
+      queuedScheduleIdList.add(ongoingSchedule.scheduleId)
+    }
+
+    // 予約されているスケジュールはcron設定
+    const upcomingSchedule = scheduleList.getUpcomingSchedule(currentTime)
+    if (upcomingSchedule !== null && !queuedScheduleIdList.has(upcomingSchedule.scheduleId)) {
+      console.log('start upcoming recording', upcomingSchedule.scheduleId, upcomingSchedule.programInfo.cid, upcomingSchedule.programInfo.sid)
+      const startAt = upcomingSchedule.programInfo.program.startAt + recordingStartTimeOffset
+      const cronValue = timestampToCron(startAt)
+      // FIXME: 設定変わったらcron設定も変える
+      cron.schedule(cronValue, () => {
+        const pid = upcomingSchedule.programInfo.id
+        const sid = upcomingSchedule.programInfo.sid
+        const cid = upcomingSchedule.programInfo.cid
+        const durationSec = parseInt(`${upcomingSchedule.programInfo.program.duration / 1000}`, 10)
+        record(durationSec, cid, sid, pid)
+      })
+      queuedScheduleIdList.add(upcomingSchedule.scheduleId)
+    }
+  }
+  setInterval(pullAndScheduleRecording, 1000 * 5)
 }
 
 startRecordingScheduler()
-
-const setupDb = () => {
-  const db = levelup(leveldown('./recording_db'))
-
-  db.getMany('name', 'levelup', function (err) {
-    if (err) {
-      return console.log('Ooops!', err)
-    }
-
-    db.get('name', function (err, value) {
-      if (err) {
-        return console.log('Ooops!', err)
-      }
-
-      console.log('name=' + value)
-    })
-  })  
-}

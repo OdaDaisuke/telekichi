@@ -21,6 +21,7 @@ export async function POST(
 
   const program = await mirakurun.fetchProgramInfo(pid)
   await dbStore.createRecordingSchedule(cid, sid, program, startAt, RecordingType)
+  console.log('done')
 
   return new NextResponse(
     null,

@@ -49,6 +49,10 @@ export class DbClient {
   getRecordingScheduleMetadataList = async (): Promise<Array<RecordingScheduleMetadata>> => {
     const p = new Promise<Array<RecordingScheduleMetadata>>((resolve, reject) => {
       this.db.all<RecordingScheduleMetadata>("select * from recording_schedule_metadata", (err, rows) => {
+        if (!rows) {
+          resolve([])
+          return
+        }
         const ids = rows.map(row => {
           return row
         })

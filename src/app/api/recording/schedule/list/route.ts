@@ -10,7 +10,7 @@ export async function GET(
   const response = metadataList.map(item => {
     return {
       scheduleId: item.schedule_id,
-      cron: item.cron,
+      startAt: item.start_at,
       programInfo: JSON.parse(item.program_info),
     }
   })
