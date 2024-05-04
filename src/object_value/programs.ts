@@ -46,7 +46,6 @@ export class MirakurunPrograms {
       return 0
     }
 
-    console.log('min', min)
     return parseInt(`${(min - todayStartAtTimestamp) / 1000}`, 10)
   }
 }

@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { MirakurunProgram } from "@/models/mirakurun";
 import { EPGIndicator } from './indicator';
 import { MirakurunPrograms } from '@/object_value/programs';
@@ -20,6 +19,7 @@ export type ProgramsPerService = Array<{
 interface EPGBodyProps {
   programsPerService: ProgramsPerService
   currentTime: number
+  onClickCell: (pid: number) => void
 }
 
 export const EPGBody = (props: EPGBodyProps) => {
@@ -41,6 +41,7 @@ export const EPGBody = (props: EPGBodyProps) => {
       channelType={channelAndPrograms.channelType}
       channelId={channelAndPrograms.channelId}
       serviceId={channelAndPrograms.serviceId}
+      onClickCell={props.onClickCell}
     />)
   })
 
@@ -56,6 +57,7 @@ const BodyColumn = (props: {
   channelType: string,
   channelId: string,
   serviceId: number,
+  onClickCell: (pid: number) => void
 }) => {
   const programs = new MirakurunPrograms(props.programs)
   const todayPrograms = programs.filterByToday(props.currentTime).sortByStartAt()
@@ -77,7 +79,8 @@ const BodyColumn = (props: {
       channelId={props.channelId}
       channelType={props.channelType}
       serviceId={props.serviceId}
-      currentTime={props.currentTime} />
+      currentTime={props.currentTime}
+      onClick={props.onClickCell} />
   })
   return <div style={{paddingTop: `${paddingTop}px`, height: `${egpHeight}px`, overflow: 'hidden', borderRight: '1px dotted #fff'}} className="flex-grow-0 flex-shrink-0 w-40">
     {items}
@@ -90,6 +93,7 @@ const BodyColumnItem = (props: {
   channelId: string,
   channelType: string,
   serviceId: number,
+  onClick: (pid: number) => void
 }) => {
   const { id, name, description, startAt, duration } = props.program
   const minutes = new Date(startAt).getMinutes()
@@ -116,14 +120,12 @@ const BodyColumnItem = (props: {
     {isEnded && <div>
       <span className="inline-block text-xs mr-1 text-gray-500">{minutes}</span>{name}
     </div>}
-    {/* FIXME: クリックでモーダル開く */}
-    {/* モーダル内で視聴か録画か選ばせる */}
-    {(!isEnded) && <Link
+    {!isEnded && <span
+      onClick={() => {props.onClick(id)}}
       className="inline-block font-bold text-base mb-1 cursor-pointer"
-      href={{ pathname: '/play', query: { ctype: props.channelType, cid: props.channelId, sid: props.serviceId, pid: id }}}
     >
-      <span className="inline-block text-xs mr-1 text-gray-500">{minutes}</span>{name}
-    </Link>}
+      <span className="inline-block font-bold text-base mb-1 cursor-pointer inline-block text-xs mr-1 text-gray-500">{minutes}</span>{name}
+    </span>}
     {hours > 0.7 && <span className="block text-sm text-gray-600">{description}</span>}
   </div>
 }

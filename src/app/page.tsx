@@ -1,10 +1,13 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { EPGHeader } from '@/components/epg/header';
 import { EPGTimeScale } from '@/components/epg/time_scale';
 import { EPGBody, ProgramsPerService } from '@/components/epg/body';
-import { MirakurunChannelList, MirakurunChannel } from "@/models/mirakurun";
+import { MirakurunChannelList, MirakurunChannel, MirakurunProgram } from "@/models/mirakurun";
 import { mirakurun } from '@/gateway/mirakurun';
+import { AppButton } from '@/components/button';
 
 const fetchData = async () => {
   const channels = await mirakurun.fetchChannels();
@@ -23,7 +26,7 @@ const fetchData = async () => {
         programsPerService.push({
           channelType: channel.type,
           channelId: channel.channel,
-          serviceId: defaultService.id,
+          serviceId: defaultService.serviceId,
           programs: fetchedPrograms.slice(0, 1000),
         })
         resolve(null)
@@ -41,6 +44,13 @@ const fetchData = async () => {
 
 // 番組表ページ
 export default function EPG() {
+  const router = useRouter()
+  const [selectedProgram, selectProgram] = useState<{
+    ctype: string,
+    cid: string,
+    sid: number,
+    program: MirakurunProgram
+  } | null>(null)
   const [channels, setChannels] = useState<MirakurunChannelList>([])
   const [programsPerService, setPrograms] = useState<ProgramsPerService>([])
   const [currentTime, setCurrentTime] = useState<number>((new Date()).getTime())
@@ -61,12 +71,59 @@ export default function EPG() {
   channels.forEach(channel => {
     headerLabels.push(channel.name)
   })
+
+  const onClickCloseProgramInfo = () => {
+    selectProgram(null)
+  }
+
+  const onClickCell = (pid: number) => {
+    console.log('pid', pid)
+    programsPerService.map((programs) => {
+      const ctype = programs.channelType
+      const cid = programs.channelId
+      const sid = programs.serviceId
+      const filtered = programs.programs.filter((program) => program.id === pid)
+      if (filtered.length > 0) {
+        selectProgram({
+          ctype,
+          cid,
+          sid,
+          program: filtered[0],
+        })
+        return
+      }
+    })
+  }
+
+  const onClickRecordProgram = () => {
+    alert('FIXME')
+  }
+
   return (
     <div>
       <EPGHeader channels={channels}/>
       <div className="flex">
         <EPGTimeScale currentHour={currentHour}/>
-        <EPGBody programsPerService={programsPerService} currentTime={currentTime}/>
+        <EPGBody programsPerService={programsPerService} currentTime={currentTime} onClickCell={onClickCell} />
+      </div>
+      <div>
+        {selectedProgram !== null && <div className="fixed right-0 top-0 h-screen w-96 p-4 bg-gray-800">
+          <div onClick={onClickCloseProgramInfo} className="cursor-pointer">
+            <span className="text-5xl i-lucide-circle-x mb-2"></span>
+          </div>
+          <h3 className="text-2xl font-bold mb-2">{selectedProgram.program.name}</h3>
+          <p className="mb-2">{selectedProgram.program.description}</p>
+          <div className="text-gray-200 text-xs">{(new Date(selectedProgram.program.startAt).toDateString())}</div>
+          <div>
+            <AppButton>
+              <Link
+                href={{ pathname: '/play', query: { ctype: selectedProgram.ctype, cid: selectedProgram.cid, sid: selectedProgram.sid, pid: selectedProgram.program.id }}}
+                target="_blank"
+              >視聴</Link>
+            </AppButton>
+            <AppButton onClick={onClickRecordProgram}>録画する</AppButton>
+          </div>
+        </div>}
       </div>
     </div>
   );
