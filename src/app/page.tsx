@@ -95,10 +95,6 @@ export default function EPG() {
     })
   }
 
-  const onClickRecordProgram = () => {
-    alert('FIXME')
-  }
-
   return (
     <div>
       <EPGHeader channels={channels}/>
@@ -121,7 +117,12 @@ export default function EPG() {
                 target="_blank"
               >視聴</Link>
             </AppButton>
-            <AppButton onClick={onClickRecordProgram}>録画する</AppButton>
+            <AppButton>
+              <Link
+                href={{ pathname: '/recording/setting/upsert', query: { ctype: selectedProgram.ctype, cid: selectedProgram.cid, sid: selectedProgram.sid, pid: selectedProgram.program.id }}}
+                target="_blank"
+              >録画する</Link>
+            </AppButton>
           </div>
         </div>}
       </div>

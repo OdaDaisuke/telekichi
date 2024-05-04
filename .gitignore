@@ -2,8 +2,8 @@
 
 # dependencies
 /node_modules
-proxy/node_modules
-recorder/node_modules
+./child_process/proxy/node_modules
+./child_process/recorder/node_modules
 lib/telekichi/node_modules
 /.pnp
 .pnp.js
