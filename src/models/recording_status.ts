@@ -5,4 +5,5 @@ export interface RecordingStatus {
   status: number
   thumbnail_generated: number
   ss_thumbnail_image_count: number
+  program_info: string
 }

@@ -55,8 +55,8 @@ class DbStore {
     return this.dbClient.listRecordedStatus()
   }
 
-  insertRecordingStatus = async (id: string, scheduleId: string, status: string, filepath: string) => {
-    return this.dbClient.insertRecordingStatus(id, scheduleId, status, filepath)
+  insertRecordingStatus = async (id: string, scheduleId: string, programInfoJson: string, status: string, filepath: string) => {
+    return this.dbClient.insertRecordingStatus(id, scheduleId, programInfoJson, status, filepath)
   }
 
   updateRecordingStatus = async (id: string, recordingStatus: number, thumbnailGenerated: number, ssThumbnailImageCount: number) => {

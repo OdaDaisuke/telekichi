@@ -17,8 +17,11 @@ export async function POST(
   }
 
   try {
+    // program info from metadata
+    const recordingScheduleMetadata = await dbStore.getRecordingScheduleMetadata(scheduleId)
+
     const recordingId = crypto.randomUUID()
-    await dbStore.insertRecordingStatus(recordingId, scheduleId, status, filepath)
+    await dbStore.insertRecordingStatus(recordingId, scheduleId, recordingScheduleMetadata.program_info, status, filepath)
     return NextResponse.json(
       {
         recordingId,

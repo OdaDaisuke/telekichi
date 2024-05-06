@@ -10,7 +10,7 @@ const run = () => {
   db.run("CREATE TABLE IF NOT EXISTS recording_schedule_metadata(schedule_id VARCHAR(36) PRIMARY KEY, start_at integer NOT NULL, program_info JSON)")
 
   // recording_status
-  db.run("CREATE TABLE IF NOT EXISTS recording_status(id VARCHAR(36) PRIMARY KEY, schedule_id VARCHAR(36), status integer NOT NULL, filepath TEXT, thumbnail_generated integer, ss_thumbnail_image_count integer)")
+  db.run("CREATE TABLE IF NOT EXISTS recording_status(id VARCHAR(36) PRIMARY KEY, schedule_id VARCHAR(36), status integer NOT NULL, filepath TEXT, thumbnail_generated integer, ss_thumbnail_image_count integer, program_info JSON)")
 }
 
 run()
