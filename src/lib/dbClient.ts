@@ -1,5 +1,6 @@
 import sqlite3 from 'sqlite3'
 import { RecordingScheduleMetadata } from '@/models/recording_schedule'
+import { RecordingStatus } from '@/models/recording_status'
 
 export class DbClient {
   private readonly db: sqlite3.Database
@@ -62,6 +63,15 @@ export class DbClient {
     return await p
   }
 
+  getRecordingScheduleMetadata = async (scheduleId: string): Promise<RecordingScheduleMetadata> => {
+    const p = new Promise<RecordingScheduleMetadata>((resolve, reject) => {
+      this.db.get<RecordingScheduleMetadata>("select * from recording_schedule_metadata where schedule_id = ?", [scheduleId], (err, row) => {
+        resolve(row)
+      })
+    })
+    return await p
+  }
+
   deleteRecordingSchedule = async (scheduleId: string) => {
     const p = new Promise((resolve, reject) => {
       this.db.run('delete from recording_schedules where id = ?', [scheduleId], (err) => {
@@ -84,5 +94,45 @@ export class DbClient {
       })
     })
     await p2
+  }
+
+  getRecordingStatus = async (scheduleId: string): Promise<RecordingStatus | null> => {
+    const p = new Promise<RecordingStatus | null>((resolve, reject) => {
+      this.db.get<RecordingStatus>("select * from recording_status where schedule_id = ?", [scheduleId], (err, row) => {
+        console.log('error', err)
+        if (err) {
+          resolve(null)
+          return
+        }
+        resolve(row)
+      })
+    })
+    return await p
+  }
+
+  insertRecordingStatus = async (scheduleId: string, status: string, filepath: string) => {
+    const p = new Promise((resolve, reject) => {
+      this.db.run('insert into recording_status(schedule_id, status, filepath) VALUES(?, ?, ?)', [scheduleId, status, filepath], (err) => {
+        if (err) {
+          reject(`error ${JSON.stringify(err)}`)
+          return
+        }
+        resolve(undefined)
+      })
+    })
+    await p
+  }
+
+  updateRecordingStatus = async (scheduleId: string, recordingStatus: number | undefined, thumbnailImageUrl: string | undefined) => {
+    const p = new Promise((resolve, reject) => {
+      this.db.run('update recording_status set status = ?, thumbnail_image_url = ? where schedule_id = ?', [recordingStatus, thumbnailImageUrl, scheduleId], (err) => {
+        if (err) {
+          reject(`error ${JSON.stringify(err)}`)
+          return
+        }
+        resolve(undefined)
+      })
+    })
+    await p
   }
 }

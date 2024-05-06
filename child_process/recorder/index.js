@@ -9,13 +9,17 @@ console.log('starting recorder')
 // 意図：録画プロセス開始から実際に録画開始するまでの遅延を考慮するため
 const recordingStartTimeOffset = -(1000 * 5)
 
-const record = (durationSec, channel, serviceId, pid) => {
+const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
   const channelType = 'GR'
   // const inputSource = `http://192.168.40.71:40772/api/channels/GR/26/services/3273701032/stream`
   const inputSource = `http://192.168.40.71:40772/api/channels/${channelType}/${channel}/services/${serviceId}/stream`
 
   const d = new Date()
-  const outputFilename = `./output_${channelType}_${channel}_${serviceId}_${pid}_${d.getTime()}.webm`
+  const outputFilename = `output_${channelType}_${channel}_${serviceId}_${pid}_${d.getTime()}.webm`
+
+  const status = 1
+  const filepath = `${process.cwd()}/child_process/recorder/${outputFilename}`
+  await apiClient.createRecordingStatus(scheduleId, status, filepath, filepath)
 
   const ffmpegProcess = spawn('ffmpeg', [
     '-re',
@@ -43,10 +47,13 @@ const record = (durationSec, channel, serviceId, pid) => {
     console.error(`${data}`);
   });
 
-  ffmpegProcess.on('close', (code) => {
+  ffmpegProcess.on('close', async (code) => {
+    const status = 2
+    // TODO: サムネ/const thumbnailImageUrl = ''
+    await apiClient.updateRecordingStatus(scheduleId, status)
+
     console.log(`ffmpeg process exited with code ${code}`);
   });
-  // ffmpegProcess.kill()
 }
 
 const startRecordingScheduler = () => {
@@ -63,13 +70,14 @@ const startRecordingScheduler = () => {
     const ongoingSchedule = scheduleList.getOngoingSchedule(currentTime)
     if (ongoingSchedule !== null && !queuedScheduleIdList.has(ongoingSchedule.scheduleId)) {
       const endAt = ongoingSchedule.programInfo.program.startAt + ongoingSchedule.programInfo.program.duration
-      const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
-      const pid = ongoingSchedule.programInfo.id
+      // const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
+      const durationSec = 10
+      const pid = ongoingSchedule.programInfo.program.id
       const sid = ongoingSchedule.programInfo.sid
       const cid = ongoingSchedule.programInfo.cid
 
       console.log('start ongoing recording', ongoingSchedule.scheduleId, cid, sid, `${durationSec}sec`)
-      record(durationSec, cid, sid, pid)
+      record(ongoingSchedule.scheduleId, durationSec, cid, sid, pid)
       queuedScheduleIdList.add(ongoingSchedule.scheduleId)
     }
 
@@ -81,14 +89,15 @@ const startRecordingScheduler = () => {
       const cronValue = timestampToCron(startAt)
       // FIXME: 設定変わったらcron設定も変える
       cron.schedule(cronValue, () => {
-        const pid = upcomingSchedule.programInfo.id
+        const pid = upcomingSchedule.programInfo.program.id
         const sid = upcomingSchedule.programInfo.sid
         const cid = upcomingSchedule.programInfo.cid
         const durationSec = parseInt(`${upcomingSchedule.programInfo.program.duration / 1000}`, 10)
-        record(durationSec, cid, sid, pid)
+        record(upcomingSchedule.scheduleId, durationSec, cid, sid, pid)
       })
       queuedScheduleIdList.add(upcomingSchedule.scheduleId)
     }
+    console.log('pulled')
   }
   setInterval(pullAndScheduleRecording, 1000 * 5)
 }

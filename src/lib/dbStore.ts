@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { RecordingType, RecordingMetadata } from '@/models/recording'
 import { RecordingScheduleMetadata } from '@/models/recording_schedule'
+import { RecordingStatus } from '@/models/recording_status'
 import { DbClient }from './dbClient'
 import { MirakurunProgram } from '@/models/mirakurun'
 
@@ -23,6 +24,10 @@ class DbStore {
     return this.dbClient.getRecordingScheduleMetadataList()
   }
 
+  getRecordingScheduleMetadata = async (scheduleId: string): Promise<RecordingScheduleMetadata> => {
+    return this.dbClient.getRecordingScheduleMetadata(scheduleId)
+  }
+
   createRecordingSchedule = async (cid: string, sid: number, program: MirakurunProgram, startAt: number, recordingType: RecordingType) => {
     const scheduleId = crypto.randomUUID()
 
@@ -40,6 +45,18 @@ class DbStore {
 
   addRecordingScheduleList = async (scheduleId: string) => {
     this.dbClient.addRecordingSchedule(scheduleId)
+  }
+
+  getRecordingStatus = async (scheduleId: string): Promise<RecordingStatus | null> => {
+    return this.dbClient.getRecordingStatus(scheduleId)
+  }
+
+  insertRecordingStatus = async (scheduleId: string, status: string, filepath: string) => {
+    return this.dbClient.insertRecordingStatus(scheduleId, status, filepath)
+  }
+
+  updateRecordingStatus = async (scheduleId: string, recordingStatus: number | undefined, thumbnailImageUrl: string | undefined) => {
+    return this.dbClient.updateRecordingStatus(scheduleId, recordingStatus, thumbnailImageUrl)
   }
 
   private saveRecordingScheduleMetadata = async (scheduleId: string, startAt: number, metadata: RecordingMetadata) => {
