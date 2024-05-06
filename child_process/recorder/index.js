@@ -2,6 +2,7 @@ import { spawn } from 'child_process'
 import cron from 'node-cron'
 import { apiClient } from './api_client.js'
 import { timestampToCron } from 'libtelekichi'
+import { generateSsThumbnail } from './ss_thumbnail.js'
 
 console.log('starting recorder')
 
@@ -15,11 +16,12 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
   const inputSource = `http://192.168.40.71:40772/api/channels/${channelType}/${channel}/services/${serviceId}/stream`
 
   const d = new Date()
-  const outputFilename = `output_${channelType}_${channel}_${serviceId}_${pid}_${d.getTime()}.webm`
+  const outputFilename = `output_${channelType}_${channel}_${serviceId}_${pid}_${d.getTime()}`
+  const outputFilenameWithExt = `${outputFilename}.webm`
 
   const status = 1
-  const filepath = `${process.cwd()}/child_process/recorder/${outputFilename}`
-  await apiClient.createRecordingStatus(scheduleId, status, filepath, filepath)
+  const outputFilepath = `${process.cwd()}/${outputFilenameWithExt}`
+  await apiClient.createRecordingStatus(scheduleId, status, outputFilepath)
 
   const ffmpegProcess = spawn('ffmpeg', [
     '-re',
@@ -40,7 +42,7 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
     '-cpu-used', '-8',
     '-y',
     '-f', 'webm',
-    outputFilename,
+    outputFilenameWithExt,
   ]);
 
   ffmpegProcess.stderr.on('data', (data) => {
@@ -51,8 +53,9 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
     const status = 2
     // TODO: サムネ/const thumbnailImageUrl = ''
     await apiClient.updateRecordingStatus(scheduleId, status)
-
     console.log(`ffmpeg process exited with code ${code}`);
+
+    generateSsThumbnail(outputFilepath, outputFilename)
   });
 }
 
@@ -70,8 +73,7 @@ const startRecordingScheduler = () => {
     const ongoingSchedule = scheduleList.getOngoingSchedule(currentTime)
     if (ongoingSchedule !== null && !queuedScheduleIdList.has(ongoingSchedule.scheduleId)) {
       const endAt = ongoingSchedule.programInfo.program.startAt + ongoingSchedule.programInfo.program.duration
-      // const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
-      const durationSec = 10
+      const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
       const pid = ongoingSchedule.programInfo.program.id
       const sid = ongoingSchedule.programInfo.sid
       const cid = ongoingSchedule.programInfo.cid
