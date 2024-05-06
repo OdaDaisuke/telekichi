@@ -13,22 +13,23 @@ class ApiClient {
       const r = await this.client.get("/recording/schedule/list")
       return new ScheduleList(r.data)
     } catch (e) {
-      console.error('e', e)
+      console.error('[fetchRecordingScheduleList]error')
       return new ScheduleList([])
     }
   }
 
   createRecordingStatus = async (scheduleId, status, filepath) => {
-    await this.client.post("/recording/status", {
+    const res = await this.client.post("/recording/status", {
       scheduleId,
       status,
       filepath,
     })
+    return res.data.recordingId
   }
 
-  updateRecordingStatus = async (scheduleId, status, thumbnailGenerated, ssThumbnailImageCount) => {
+  updateRecordingStatus = async (recordingId, status, thumbnailGenerated, ssThumbnailImageCount) => {
     await this.client.put("/recording/status", {
-      scheduleId,
+      id: recordingId,
       status,
       thumbnailGenerated,
       ssThumbnailImageCount,

@@ -1,4 +1,5 @@
 export interface RecordingStatus {
+  id: string
   schedule_id: string
   filepath: string
   status: number

@@ -96,9 +96,9 @@ export class DbClient {
     await p2
   }
 
-  getRecordingStatus = async (scheduleId: string): Promise<RecordingStatus | null> => {
+  getRecordingStatus = async (id: string): Promise<RecordingStatus | null> => {
     const p = new Promise<RecordingStatus | null>((resolve, reject) => {
-      this.db.get<RecordingStatus>("select * from recording_status where schedule_id = ?", [scheduleId], (err, row) => {
+      this.db.get<RecordingStatus>("select * from recording_status where id = ?", [id], (err, row) => {
         console.log('error', err)
         if (err) {
           resolve(null)
@@ -110,9 +110,23 @@ export class DbClient {
     return await p
   }
 
-  insertRecordingStatus = async (scheduleId: string, status: string, filepath: string) => {
+  listRecordedStatus = async (): Promise<Array<RecordingStatus>> => {
+    const p = new Promise<Array<RecordingStatus>>((resolve, reject) => {
+      this.db.all<RecordingStatus>("select * from recording_status where status = 2", (err, rows) => {
+        if (err) {
+          console.log('error', err)
+          resolve([])
+          return
+        }
+        resolve(rows)
+      })
+    })
+    return await p
+  }
+
+  insertRecordingStatus = async (id: string, scheduleId: string, status: string, filepath: string) => {
     const p = new Promise((resolve, reject) => {
-      this.db.run('insert into recording_status(schedule_id, status, filepath) VALUES(?, ?, ?)', [scheduleId, status, filepath], (err) => {
+      this.db.run('insert into recording_status(id, schedule_id, status, filepath) VALUES(?, ?, ?, ?)', [id, scheduleId, status, filepath], (err) => {
         if (err) {
           reject(`error ${JSON.stringify(err)}`)
           return
@@ -123,9 +137,9 @@ export class DbClient {
     await p
   }
 
-  updateRecordingStatus = async (scheduleId: string, recordingStatus: number | undefined, thumbnailGenerated: number, ssThumbnailImageCount: number) => {
+  updateRecordingStatus = async (id: string, recordingStatus: number | undefined, thumbnailGenerated: number, ssThumbnailImageCount: number) => {
     const p = new Promise((resolve, reject) => {
-      this.db.run('update recording_status set status = ?, thumbnail_generated = ?, ss_thumbnail_image_count = ? where schedule_id = ?', [recordingStatus, thumbnailGenerated, ssThumbnailImageCount, scheduleId], (err) => {
+      this.db.run('update recording_status set status = ?, thumbnail_generated = ?, ss_thumbnail_image_count = ? where id = ?', [recordingStatus, thumbnailGenerated, ssThumbnailImageCount, id], (err) => {
         if (err) {
           reject(`error ${JSON.stringify(err)}`)
           return

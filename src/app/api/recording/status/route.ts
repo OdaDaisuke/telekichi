@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import type { NextApiResponse } from 'next'
 import { NextResponse } from 'next/server'
 import { dbStore } from '@/lib/dbStore'
@@ -16,19 +17,21 @@ export async function POST(
   }
 
   try {
-    await dbStore.insertRecordingStatus(scheduleId, status, filepath)
+    const recordingId = crypto.randomUUID()
+    await dbStore.insertRecordingStatus(recordingId, scheduleId, status, filepath)
+    return NextResponse.json(
+      {
+        recordingId,
+      },
+      { status: 200 }
+    )
   } catch (e) {
-    console.error(e)
+    console.error('failed', e)
     return new NextResponse(
       null,
       { status: 500 }
     )
   }
-
-  return new NextResponse(
-    null,
-    { status: 200 }
-  )
 }
 
 export async function PUT(
@@ -36,9 +39,9 @@ export async function PUT(
   res: NextApiResponse<ReadableStream>
 ) {
   const body = await req.json()
-  let { scheduleId, status, thumbnailGenerated, ssThumbnailImageCount } = body
-  console.log(scheduleId, status, thumbnailGenerated, ssThumbnailImageCount)
-  if (!scheduleId) {
+  let { id, status, thumbnailGenerated, ssThumbnailImageCount } = body
+  console.log(id, status, thumbnailGenerated, ssThumbnailImageCount)
+  if (!id) {
     return new NextResponse(
       `Invalid request ${JSON.stringify(body)}`,
       { status: 400 }
@@ -46,7 +49,7 @@ export async function PUT(
   }
 
   try {
-    const recordingStatus = await dbStore.getRecordingStatus(scheduleId)
+    const recordingStatus = await dbStore.getRecordingStatus(id)
     if (!recordingStatus) {
       console.error('no recording status found')
       return new NextResponse(
@@ -65,7 +68,7 @@ export async function PUT(
       ssThumbnailImageCount = recordingStatus.ss_thumbnail_image_count
     }
 
-    await dbStore.updateRecordingStatus(scheduleId, status, thumbnailGenerated, ssThumbnailImageCount)
+    await dbStore.updateRecordingStatus(id, status, thumbnailGenerated, ssThumbnailImageCount)
   } catch (e) {
     console.error('failed to update recording status', e)
     return new NextResponse(

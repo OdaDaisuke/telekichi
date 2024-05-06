@@ -47,16 +47,20 @@ class DbStore {
     this.dbClient.addRecordingSchedule(scheduleId)
   }
 
-  getRecordingStatus = async (scheduleId: string): Promise<RecordingStatus | null> => {
-    return this.dbClient.getRecordingStatus(scheduleId)
+  getRecordingStatus = async (id: string): Promise<RecordingStatus | null> => {
+    return this.dbClient.getRecordingStatus(id)
   }
 
-  insertRecordingStatus = async (scheduleId: string, status: string, filepath: string) => {
-    return this.dbClient.insertRecordingStatus(scheduleId, status, filepath)
+  listRecordedStatus = async (): Promise<Array<RecordingStatus>> => {
+    return this.dbClient.listRecordedStatus()
   }
 
-  updateRecordingStatus = async (scheduleId: string, recordingStatus: number, thumbnailGenerated: number, ssThumbnailImageCount: number) => {
-    return this.dbClient.updateRecordingStatus(scheduleId, recordingStatus, thumbnailGenerated, ssThumbnailImageCount)
+  insertRecordingStatus = async (id: string, scheduleId: string, status: string, filepath: string) => {
+    return this.dbClient.insertRecordingStatus(id, scheduleId, status, filepath)
+  }
+
+  updateRecordingStatus = async (id: string, recordingStatus: number, thumbnailGenerated: number, ssThumbnailImageCount: number) => {
+    return this.dbClient.updateRecordingStatus(id, recordingStatus, thumbnailGenerated, ssThumbnailImageCount)
   }
 
   private saveRecordingScheduleMetadata = async (scheduleId: string, startAt: number, metadata: RecordingMetadata) => {

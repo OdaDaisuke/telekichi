@@ -22,7 +22,7 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
 
   const status = 1
   const outputFilepath = `${process.cwd()}/${outputFilenameWithExt}`
-  await apiClient.createRecordingStatus(scheduleId, status, outputFilepath)
+  const recordingId = await apiClient.createRecordingStatus(scheduleId, status, outputFilepath)
 
   const ffmpegProcess = spawn('ffmpeg', [
     '-re',
@@ -58,7 +58,7 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
     const ssThumbnailImageCount = await generateSsThumbnail(outputFilepath, outputFilename)
 
     const thumbnailGenerated = 2
-    await apiClient.updateRecordingStatus(scheduleId, status, thumbnailGenerated, ssThumbnailImageCount)
+    await apiClient.updateRecordingStatus(recordingId, status, thumbnailGenerated, ssThumbnailImageCount)
   });
 }
 
@@ -76,7 +76,8 @@ const startRecordingScheduler = () => {
     const ongoingSchedule = scheduleList.getOngoingSchedule(currentTime)
     if (ongoingSchedule !== null && !queuedScheduleIdList.has(ongoingSchedule.scheduleId)) {
       const endAt = ongoingSchedule.programInfo.program.startAt + ongoingSchedule.programInfo.program.duration
-      const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
+      // const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
+      const durationSec = 4
       const pid = ongoingSchedule.programInfo.program.id
       const sid = ongoingSchedule.programInfo.sid
       const cid = ongoingSchedule.programInfo.cid
