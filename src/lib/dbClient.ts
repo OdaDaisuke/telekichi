@@ -124,11 +124,11 @@ export class DbClient {
     return await p
   }
 
-  insertRecordingStatus = async (id: string, scheduleId: string, programInfoJson: string, status: string, filepath: string) => {
+  insertRecordingStatus = async (id: string, scheduleId: string, programInfoJson: string, status: string) => {
     const p = new Promise((resolve, reject) => {
-      this.db.run('insert into recording_status(id, schedule_id, program_info, status, filepath) VALUES(?, ?, ?, ?, ?)', [id, scheduleId, programInfoJson, status, filepath], (err) => {
+      this.db.run('insert into recording_status(id, schedule_id, program_info, status) VALUES(?, ?, ?, ?)', [id, scheduleId, programInfoJson, status], (err) => {
         if (err) {
-          reject(`error ${JSON.stringify(err)}`)
+          reject(err)
           return
         }
         resolve(undefined)
@@ -141,7 +141,7 @@ export class DbClient {
     const p = new Promise((resolve, reject) => {
       this.db.run('update recording_status set status = ?, thumbnail_generated = ?, ss_thumbnail_image_count = ? where id = ?', [recordingStatus, thumbnailGenerated, ssThumbnailImageCount, id], (err) => {
         if (err) {
-          reject(`error ${JSON.stringify(err)}`)
+          reject(err)
           return
         }
         resolve(undefined)

@@ -1,4 +1,0 @@
-#EXTM3U url-tvg="http://localhost:3000/api/hls"
-#KODIPROP:mimetype=video/mp2t
-#EXTINF:-1 tvg-id="3273601024" tvg-logo="http://192.168.40.71:40772/api/services/3273601024/logo" group-title="GR",ＮＨＫ総合１・東京
-http://localhost:3000/api/proxy

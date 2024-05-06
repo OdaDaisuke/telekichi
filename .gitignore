@@ -11,6 +11,7 @@ lib/telekichi/node_modules
 .pnp.js
 .yarn/install-state.gz
 db/telekichi.db
+./assets
 
 # testing
 /coverage

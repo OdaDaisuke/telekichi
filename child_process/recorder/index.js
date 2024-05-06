@@ -1,9 +1,10 @@
 import { spawn } from 'child_process'
 import cron from 'node-cron'
 import { apiClient } from './api_client.js'
-import { timestampToCron } from 'libtelekichi'
+import { timestampToCron, assetsDir } from 'libtelekichi'
 import { generateSsThumbnail } from './ss_thumbnail.js'
 import { generateThumbnail } from './thumbnail.js'
+import fs from 'fs'
 
 console.log('starting recorder')
 
@@ -16,14 +17,19 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
   // const inputSource = `http://192.168.40.71:40772/api/channels/GR/26/services/3273701032/stream`
   const inputSource = `http://192.168.40.71:40772/api/channels/${channelType}/${channel}/services/${serviceId}/stream`
 
-  const d = new Date()
-  const outputFilename = `output_${channelType}_${channel}_${serviceId}_${pid}_${d.getTime()}`
-  const outputFilenameWithExt = `${outputFilename}.webm`
-
   const status = 1
-  const outputFilepath = `${process.cwd()}/${outputFilenameWithExt}`
-  const recordingId = await apiClient.createRecordingStatus(scheduleId, status, outputFilepath)
+  const recordingId = await apiClient.createRecordingStatus(scheduleId, status)
+  const outputDir = `${assetsDir}/video/${recordingId}`
 
+  fs.promises.mkdir(outputDir, {
+    recursive: true,
+  })
+
+  const outputFilepath = `${outputDir}/video.webm`
+  console.log('recording path: ', outputFilepath)
+
+  // # 出力時に指定したdarと縦幅でリサイズする。16:9で縦幅1080pxに横幅を自動に合わせる。
+  // # 録画開始5秒前に実行
   const ffmpegProcess = spawn('ffmpeg', [
     '-re',
     '-dual_mono_mode', 'main',
@@ -43,7 +49,7 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
     '-cpu-used', '-8',
     '-y',
     '-f', 'webm',
-    outputFilenameWithExt,
+    outputFilepath,
   ]);
 
   ffmpegProcess.stderr.on('data', (data) => {
@@ -54,8 +60,8 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
     console.log(`ffmpeg process exited with code ${code}, writing recording status...`);
     const status = 2
 
-    await generateThumbnail(outputFilepath, outputFilename)
-    const ssThumbnailImageCount = await generateSsThumbnail(outputFilepath, outputFilename)
+    await generateThumbnail(outputFilepath, recordingId)
+    const ssThumbnailImageCount = await generateSsThumbnail(outputFilepath, recordingId)
 
     const thumbnailGenerated = 2
     await apiClient.updateRecordingStatus(recordingId, status, thumbnailGenerated, ssThumbnailImageCount)

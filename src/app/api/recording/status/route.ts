@@ -8,7 +8,7 @@ export async function POST(
   res: NextApiResponse<ReadableStream>
 ) {
   const body = await req.json()
-  const { scheduleId, status, filepath } = body
+  const { scheduleId, status } = body
   if (!scheduleId) {
     return new NextResponse(
       `Invalid request ${JSON.stringify(body)}`,
@@ -21,14 +21,14 @@ export async function POST(
     const recordingScheduleMetadata = await dbStore.getRecordingScheduleMetadata(scheduleId)
 
     const recordingId = crypto.randomUUID()
-    await dbStore.insertRecordingStatus(recordingId, scheduleId, recordingScheduleMetadata.program_info, status, filepath)
+    await dbStore.insertRecordingStatus(recordingId, scheduleId, recordingScheduleMetadata.program_info, status)
     return NextResponse.json(
       {
         recordingId,
       },
       { status: 200 }
     )
-  } catch (e) {
+  } catch (e: any) {
     console.error('failed', e)
     return new NextResponse(
       null,

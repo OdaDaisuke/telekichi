@@ -18,13 +18,17 @@ class ApiClient {
     }
   }
 
-  createRecordingStatus = async (scheduleId, status, filepath) => {
-    const res = await this.client.post("/recording/status", {
-      scheduleId,
-      status,
-      filepath,
-    })
-    return res.data.recordingId
+  createRecordingStatus = async (scheduleId, status) => {
+    try {
+      const res = await this.client.post("/recording/status", {
+        scheduleId,
+        status,
+      })
+      return res.data.recordingId
+    } catch (e) {
+      console.error(e.message)
+      process.exit(1)
+    }
   }
 
   updateRecordingStatus = async (recordingId, status, thumbnailGenerated, ssThumbnailImageCount) => {

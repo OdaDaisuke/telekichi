@@ -1,8 +1,9 @@
 import { spawn } from 'child_process'
 import fs from 'fs'
+import { assetsDir } from 'libtelekichi'
 
-export const generateThumbnail = async (inputSource, inputFilename) => {
-  const outputDir = `./thumbnail/${inputFilename}`
+export const generateThumbnail = async (inputSource, recordingId) => {
+  const outputDir = `${assetsDir}/thumbnail/${recordingId}`
   console.log(`start generating thumbnail ${inputSource} : ${outputDir}`)
 
   fs.promises.mkdir(outputDir, {
@@ -10,6 +11,7 @@ export const generateThumbnail = async (inputSource, inputFilename) => {
   })
 
   const args = `-i ${inputSource} -vf thumbnail=1000,scale=-1:720 -frames:v 1 ${outputDir}/thumbnail.jpg`
+  console.log('args', args)
   const ffmpegProcess = spawn('ffmpeg', args.split(' '));
 
   ffmpegProcess.stderr.on('data', (data) => {

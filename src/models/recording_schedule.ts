@@ -1,4 +1,5 @@
 import { MirakurunProgram } from './mirakurun'
+import { ProgramInfo } from './program_info'
 
 // DBのモデル
 export interface RecordingScheduleMetadata {
@@ -10,9 +11,5 @@ export interface RecordingScheduleMetadata {
 export interface RecordingSchedule {
   scheduleId: string
   startAt: string
-  programInfo: {
-    scheduleId: string,
-    sid: number,
-    program: MirakurunProgram,
-  }
+  programInfo: ProgramInfo
 }
