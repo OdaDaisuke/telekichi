@@ -3,6 +3,7 @@ import cron from 'node-cron'
 import { apiClient } from './api_client.js'
 import { timestampToCron } from 'libtelekichi'
 import { generateSsThumbnail } from './ss_thumbnail.js'
+import { generateThumbnail } from './thumbnail.js'
 
 console.log('starting recorder')
 
@@ -50,12 +51,14 @@ const record = async (scheduleId, durationSec, channel, serviceId, pid) => {
   });
 
   ffmpegProcess.on('close', async (code) => {
+    console.log(`ffmpeg process exited with code ${code}, writing recording status...`);
     const status = 2
-    // TODO: サムネ/const thumbnailImageUrl = ''
-    await apiClient.updateRecordingStatus(scheduleId, status)
-    console.log(`ffmpeg process exited with code ${code}`);
 
-    generateSsThumbnail(outputFilepath, outputFilename)
+    await generateThumbnail(outputFilepath, outputFilename)
+    const ssThumbnailImageCount = await generateSsThumbnail(outputFilepath, outputFilename)
+
+    const thumbnailGenerated = 2
+    await apiClient.updateRecordingStatus(scheduleId, status, thumbnailGenerated, ssThumbnailImageCount)
   });
 }
 

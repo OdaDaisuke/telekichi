@@ -2,5 +2,6 @@ export interface RecordingStatus {
   schedule_id: string
   filepath: string
   status: number
-  thumbnail_image_url: string
+  thumbnail_generated: number
+  ss_thumbnail_image_count: number
 }

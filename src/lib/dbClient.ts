@@ -123,9 +123,9 @@ export class DbClient {
     await p
   }
 
-  updateRecordingStatus = async (scheduleId: string, recordingStatus: number | undefined, thumbnailImageUrl: string | undefined) => {
+  updateRecordingStatus = async (scheduleId: string, recordingStatus: number | undefined, thumbnailGenerated: number, ssThumbnailImageCount: number) => {
     const p = new Promise((resolve, reject) => {
-      this.db.run('update recording_status set status = ?, thumbnail_image_url = ? where schedule_id = ?', [recordingStatus, thumbnailImageUrl, scheduleId], (err) => {
+      this.db.run('update recording_status set status = ?, thumbnail_generated = ?, ss_thumbnail_image_count = ? where schedule_id = ?', [recordingStatus, thumbnailGenerated, ssThumbnailImageCount, scheduleId], (err) => {
         if (err) {
           reject(`error ${JSON.stringify(err)}`)
           return

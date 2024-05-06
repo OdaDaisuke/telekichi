@@ -36,8 +36,8 @@ export async function PUT(
   res: NextApiResponse<ReadableStream>
 ) {
   const body = await req.json()
-  let { scheduleId, status, thumbnailImageUrl } = body
-  console.log(scheduleId, status, thumbnailImageUrl)
+  let { scheduleId, status, thumbnailGenerated, ssThumbnailImageCount } = body
+  console.log(scheduleId, status, thumbnailGenerated, ssThumbnailImageCount)
   if (!scheduleId) {
     return new NextResponse(
       `Invalid request ${JSON.stringify(body)}`,
@@ -47,7 +47,6 @@ export async function PUT(
 
   try {
     const recordingStatus = await dbStore.getRecordingStatus(scheduleId)
-    console.log('r', recordingStatus)
     if (!recordingStatus) {
       console.error('no recording status found')
       return new NextResponse(
@@ -59,11 +58,14 @@ export async function PUT(
     if (!status) {
       status = recordingStatus.status
     }
-    if (!thumbnailImageUrl) {
-      thumbnailImageUrl = recordingStatus.thumbnail_image_url
+    if (!thumbnailGenerated) {
+      thumbnailGenerated = recordingStatus.thumbnail_generated
+    }
+    if (!ssThumbnailImageCount) {
+      ssThumbnailImageCount = recordingStatus.ss_thumbnail_image_count
     }
 
-    await dbStore.updateRecordingStatus(scheduleId, status, thumbnailImageUrl)
+    await dbStore.updateRecordingStatus(scheduleId, status, thumbnailGenerated, ssThumbnailImageCount)
   } catch (e) {
     console.error('failed to update recording status', e)
     return new NextResponse(

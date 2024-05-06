@@ -26,11 +26,12 @@ class ApiClient {
     })
   }
 
-  updateRecordingStatus = async (scheduleId, status, thumbnailImageUrl) => {
+  updateRecordingStatus = async (scheduleId, status, thumbnailGenerated, ssThumbnailImageCount) => {
     await this.client.put("/recording/status", {
       scheduleId,
       status,
-      thumbnailImageUrl,
+      thumbnailGenerated,
+      ssThumbnailImageCount,
     })
   }
 }

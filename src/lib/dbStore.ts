@@ -55,8 +55,8 @@ class DbStore {
     return this.dbClient.insertRecordingStatus(scheduleId, status, filepath)
   }
 
-  updateRecordingStatus = async (scheduleId: string, recordingStatus: number | undefined, thumbnailImageUrl: string | undefined) => {
-    return this.dbClient.updateRecordingStatus(scheduleId, recordingStatus, thumbnailImageUrl)
+  updateRecordingStatus = async (scheduleId: string, recordingStatus: number, thumbnailGenerated: number, ssThumbnailImageCount: number) => {
+    return this.dbClient.updateRecordingStatus(scheduleId, recordingStatus, thumbnailGenerated, ssThumbnailImageCount)
   }
 
   private saveRecordingScheduleMetadata = async (scheduleId: string, startAt: number, metadata: RecordingMetadata) => {

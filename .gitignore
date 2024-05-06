@@ -4,6 +4,8 @@
 /node_modules
 ./child_process/proxy/node_modules
 ./child_process/recorder/node_modules
+./child_process/recorder/ss_thumb/
+./child_process/recorder/thumbnail/
 lib/telekichi/node_modules
 /.pnp
 .pnp.js
