@@ -10,7 +10,7 @@ class ApiClient {
 
   fetchRecordingScheduleList = async () => {
     try {
-      const r = await this.client.get("/recording/schedule/list")
+      const r = await this.client.get("/recording/schedule/list?filter=exclude_finished")
       return new ScheduleList(r.data)
     } catch (e) {
       console.error('[fetchRecordingScheduleList]error')

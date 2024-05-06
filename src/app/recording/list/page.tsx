@@ -16,11 +16,11 @@ export default function RecordingList() {
   return <div>
     {recordingStatusList.map((recordingStatus, i) => {
       return <div key={i}>
-        <img src={recordingStatus.thumbnail_image_path} />
-        <h3>{recordingStatus.program_info.program.name}</h3>
-        <p>{recordingStatus.program_info.program.description}</p>
+        <img src={recordingStatus.thumbnailImageUrl} />
+        <h3>{recordingStatus.programInfo.program.name}</h3>
+        <p>{recordingStatus.programInfo.program.description}</p>
         <video controls>
-          <source src={recordingStatus.filepath} />
+          <source src={recordingStatus.playableUrl} type="video/webm" />
         </video>
       </div>
     })}

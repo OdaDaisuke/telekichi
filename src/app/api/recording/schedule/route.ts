@@ -33,16 +33,16 @@ export async function DELETE(
   req: Request,
   res: NextApiResponse<ReadableStream>
 ) {
-  const body = await req.json()
-  const scheduleId = body.scheduleId
+  const url = new URL(req.url)
+  const scheduleId = url.searchParams.get("id")
   if (!scheduleId) {
     return new NextResponse(
-      `Invalid request ${JSON.stringify(body)}`,
+      `no ?id found`,
       { status: 400 }
     );
   }
 
-  await dbStore.deleteRecordingSchedule(scheduleId)
+  await dbStore.deleteRecordingScheduleMetadata(scheduleId)
 
   return new NextResponse(
     null,

@@ -43,7 +43,6 @@ export async function PUT(
 ) {
   const body = await req.json()
   let { id, status, thumbnailGenerated, ssThumbnailImageCount } = body
-  console.log(id, status, thumbnailGenerated, ssThumbnailImageCount)
   if (!id) {
     return new NextResponse(
       `Invalid request ${JSON.stringify(body)}`,
@@ -72,6 +71,7 @@ export async function PUT(
     }
 
     await dbStore.updateRecordingStatus(id, status, thumbnailGenerated, ssThumbnailImageCount)
+    await dbStore.finishRecordingScheduleMetadata(recordingStatus.schedule_id)
   } catch (e) {
     console.error('failed to update recording status', e)
     return new NextResponse(

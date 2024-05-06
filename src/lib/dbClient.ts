@@ -9,31 +9,6 @@ export class DbClient {
     this.db = new sqlite3.Database("./db/telekichi.db");
   }
 
-  getRecordingSchedules = async (): Promise<Array<string>> => {
-    const p = new Promise<Array<string>>((resolve, reject) => {
-      this.db.all<string>("select id from recording_schedules", (err, rows) => {
-        const ids = rows.map(row => {
-          return row
-        })
-        resolve(ids)
-      })
-    })
-    return await p
-  }
-
-  addRecordingSchedule = async (id: string) => {
-    const p = new Promise((resolve, reject) => {
-      this.db.run('insert into recording_schedules(id) VALUES(?)', [id], (err) => {
-        if (err) {
-          reject(`error ${JSON.stringify(err)}`)
-          return
-        }
-        resolve(undefined)
-      })
-    })
-    await p
-  }
-
   createRecordingScheduleMetadata = async (scheduleId: string, startAt: number, programInfo: string) => {
     const p = new Promise((resolve, reject) => {
       this.db.run('insert into recording_schedule_metadata(schedule_id, start_at, program_info) VALUES(?, ?, ?)', [scheduleId, startAt, programInfo], (err) => {
@@ -63,6 +38,23 @@ export class DbClient {
     return await p
   }
 
+  // 終了済みを除外
+  getRecordingScheduleMetadataListWithExcludeFinished = async (): Promise<Array<RecordingScheduleMetadata>> => {
+    const p = new Promise<Array<RecordingScheduleMetadata>>((resolve, reject) => {
+      this.db.all<RecordingScheduleMetadata>("select * from recording_schedule_metadata where finished = 0", (err, rows) => {
+        if (!rows) {
+          resolve([])
+          return
+        }
+        const ids = rows.map(row => {
+          return row
+        })
+        resolve(ids)
+      })
+    })
+    return await p
+  }
+
   getRecordingScheduleMetadata = async (scheduleId: string): Promise<RecordingScheduleMetadata> => {
     const p = new Promise<RecordingScheduleMetadata>((resolve, reject) => {
       this.db.get<RecordingScheduleMetadata>("select * from recording_schedule_metadata where schedule_id = ?", [scheduleId], (err, row) => {
@@ -72,18 +64,16 @@ export class DbClient {
     return await p
   }
 
-  deleteRecordingSchedule = async (scheduleId: string) => {
-    const p = new Promise((resolve, reject) => {
-      this.db.run('delete from recording_schedules where id = ?', [scheduleId], (err) => {
-        if (err) {
-          reject(`error ${JSON.stringify(err)}`)
-          return
-        }
-        resolve(undefined)
+  finishRecordingScheduleMetadata = async (scheduleId: string): Promise<RecordingScheduleMetadata> => {
+    const p = new Promise<RecordingScheduleMetadata>((resolve, reject) => {
+      this.db.get<RecordingScheduleMetadata>("update recording_schedule_metadata set finished = 1 where schedule_id = ?", [scheduleId], (err, row) => {
+        resolve(row)
       })
     })
-    await p
+    return await p
+  }
 
+  deleteRecordingScheduleMetadata = async (scheduleId: string) => {
     const p2 = new Promise((resolve, reject) => {
       this.db.run('delete from recording_schedule_metadata where schedule_id = ?', [scheduleId], (err) => {
         if (err) {
@@ -113,6 +103,20 @@ export class DbClient {
   listRecordedStatus = async (): Promise<Array<RecordingStatus>> => {
     const p = new Promise<Array<RecordingStatus>>((resolve, reject) => {
       this.db.all<RecordingStatus>("select * from recording_status where status = 2", (err, rows) => {
+        if (err) {
+          console.log('error', err)
+          resolve([])
+          return
+        }
+        resolve(rows)
+      })
+    })
+    return await p
+  }
+
+  listRecordedStatusByRecording = async (): Promise<Array<RecordingStatus>> => {
+    const p = new Promise<Array<RecordingStatus>>((resolve, reject) => {
+      this.db.all<RecordingStatus>("select * from recording_status where status = 1", (err, rows) => {
         if (err) {
           console.log('error', err)
           resolve([])

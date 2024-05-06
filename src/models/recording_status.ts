@@ -11,10 +11,10 @@ export interface RecordingStatus {
 
 export interface RecordingStatusDecoded {
   id: string
-  schedule_id: string
+  scheduleId: string
   status: number
-  thumbnail_image_path: string
-  ss_thumbnail_image_base_path: string
-  ss_thumbnail_image_count: number
-  program_info: ProgramInfo
+  playableUrl: string
+  thumbnailImageUrl: string
+  ssThumbnailImageUrls: Array<string>
+  programInfo: ProgramInfo
 }

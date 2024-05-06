@@ -26,9 +26,17 @@ class ApiClient {
     }
   }
 
+  async deleteRecordingSetting(scheduleId: string) {
+    try {
+      await this.client.delete(`/recording/schedule?id=${scheduleId}`)
+    } catch (e) {
+      throw e
+    }
+  }
+
   async fetchRecordingSettingList(): Promise<Array<RecordingSchedule>> {
     try {
-      const r = await this.client.get<Array<RecordingSchedule>>(`/recording/schedule/list`)
+      const r = await this.client.get<Array<RecordingSchedule>>(`/recording/schedule/list?filter=exclude_finished`)
       return r.data
     } catch (e) {
       throw e

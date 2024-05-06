@@ -12,39 +12,31 @@ class DbStore {
     this.dbClient = new DbClient()
   }
 
-  /**
-   * 録画設定一覧を取得
-   * @returns 録画設定IDリスト
-   */
-  getRecordingScheduleList = async (): Promise<Array<string>> => {
-    return this.dbClient.getRecordingSchedules()
-  }
-
   getRecordingScheduleMetadataList = async (): Promise<Array<RecordingScheduleMetadata>> => {
     return this.dbClient.getRecordingScheduleMetadataList()
+  }
+
+  getRecordingScheduleMetadataListWithExcludeFinished = async (): Promise<Array<RecordingScheduleMetadata>> => {
+    return this.dbClient.getRecordingScheduleMetadataListWithExcludeFinished()
   }
 
   getRecordingScheduleMetadata = async (scheduleId: string): Promise<RecordingScheduleMetadata> => {
     return this.dbClient.getRecordingScheduleMetadata(scheduleId)
   }
 
+  finishRecordingScheduleMetadata = async (scheduleId: string) => {
+    await this.dbClient.finishRecordingScheduleMetadata(scheduleId)
+  }
+
   createRecordingSchedule = async (cid: string, sid: number, program: MirakurunProgram, startAt: number, recordingType: RecordingType) => {
     const scheduleId = crypto.randomUUID()
 
-    // スケジュールリストに追加
-    await this.addRecordingScheduleList(scheduleId)
-
-    // 録画のためのメタデータ保存
     const metadata = new RecordingMetadata(scheduleId, cid, sid, program, startAt, recordingType)
     await this.saveRecordingScheduleMetadata(scheduleId, startAt, metadata)
   }
 
-  deleteRecordingSchedule = async (scheduleId: string) => {
-    this.dbClient.deleteRecordingSchedule(scheduleId)
-  }
-
-  addRecordingScheduleList = async (scheduleId: string) => {
-    this.dbClient.addRecordingSchedule(scheduleId)
+  deleteRecordingScheduleMetadata = async (scheduleId: string) => {
+    this.dbClient.deleteRecordingScheduleMetadata(scheduleId)
   }
 
   getRecordingStatus = async (id: string): Promise<RecordingStatus | null> => {
@@ -53,6 +45,10 @@ class DbStore {
 
   listRecordedStatus = async (): Promise<Array<RecordingStatus>> => {
     return this.dbClient.listRecordedStatus()
+  }
+
+  listRecordedStatusByRecording = async (): Promise<Array<RecordingStatus>> => {
+    return this.dbClient.listRecordedStatusByRecording()
   }
 
   insertRecordingStatus = async (id: string, scheduleId: string, programInfoJson: string, status: string) => {
