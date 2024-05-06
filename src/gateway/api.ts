@@ -51,6 +51,15 @@ class ApiClient {
       throw e
     }
   }
+
+  async fetchRecordingStatus(recordingId: string): Promise<RecordingStatusDecoded> {
+    try {
+      const r = await this.client.get<RecordingStatusDecoded>(`/recording/status?recording_id=${recordingId}`)
+      return r.data
+    } catch (e) {
+      throw e
+    }
+  }
 }
 
 export const apiClient = new ApiClient()

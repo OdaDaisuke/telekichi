@@ -85,3 +85,48 @@ export async function PUT(
     { status: 200 }
   )
 }
+
+export async function GET(
+  req: Request,
+  res: NextApiResponse<ReadableStream>
+) {
+  const url = new URL(req.url)
+  const recordingId = url.searchParams.get("recording_id")
+  if (!recordingId) {
+    return new NextResponse(
+      `no ?recordingId found`,
+      { status: 400 }
+    );
+  }
+
+  try {
+    // program info from metadata
+    const recordingStatus = await dbStore.getRecordingStatus(recordingId as string)
+    const playableUrl = `/api/assets?assetType=video&recordingId=${recordingId}`
+    const thumbnailImageUrl = `/api/assets?assetType=thumbnail&recordingId=${recordingId}`
+    const ssThumbnailCount = recordingStatus.ss_thumbnail_image_count
+    const ssThumbnailImageUrls: Array<string> = []
+    for (let i = 1; i <= ssThumbnailCount + 1; i++) {
+      ssThumbnailImageUrls.push(`/api/assets?assetType=ss_thumbnail&recordingId=${recordingId}&ssThumbnailNumber=${i}`)
+    }
+
+    return NextResponse.json(
+      {
+        id: recordingStatus.id,
+        scheduleId: recordingStatus.schedule_id,
+        status: recordingStatus.status,
+        playableUrl,
+        thumbnailImageUrl,
+        ssThumbnailImageUrls,
+        programInfo: JSON.parse(recordingStatus.program_info),
+      },
+      { status: 200 }
+    )
+  } catch (e: any) {
+    console.error('failed', e)
+    return new NextResponse(
+      null,
+      { status: 500 }
+    )
+  }
+}

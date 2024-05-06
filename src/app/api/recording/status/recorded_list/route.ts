@@ -15,7 +15,6 @@ export async function GET(
 
       const ssThumbnailCount = item.ss_thumbnail_image_count
       const ssThumbnailImageUrls: Array<string> = []
-      console.log('ssThumbnailImageUrls', ssThumbnailCount)
       for (let i = 1; i <= ssThumbnailCount + 1; i++) {
         ssThumbnailImageUrls.push(`/api/assets?assetType=ss_thumbnail&recordingId=${recordingId}&ssThumbnailNumber=${i}`)
       }

@@ -39,8 +39,8 @@ class DbStore {
     this.dbClient.deleteRecordingScheduleMetadata(scheduleId)
   }
 
-  getRecordingStatus = async (id: string): Promise<RecordingStatus | null> => {
-    return this.dbClient.getRecordingStatus(id)
+  getRecordingStatus = async (id: string): Promise<RecordingStatus> => {
+    return await this.dbClient.getRecordingStatus(id)
   }
 
   listRecordedStatus = async (): Promise<Array<RecordingStatus>> => {

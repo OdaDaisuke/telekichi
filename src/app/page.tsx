@@ -77,7 +77,6 @@ export default function EPG() {
   }
 
   const onClickCell = (pid: number) => {
-    console.log('pid', pid)
     programsPerService.map((programs) => {
       const ctype = programs.channelType
       const cid = programs.channelId

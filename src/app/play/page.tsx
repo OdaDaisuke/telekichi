@@ -8,16 +8,21 @@ import { mirakurun } from '@/gateway/mirakurun';
 import { MirakurunProgram } from '@/models/mirakurun';
 import { MirakurunChannelList } from '@/models/mirakurun'
 import { getNextChannel } from '@/object_value/channels'
+import { apiClient } from '@/gateway/api';
 
 // 番組再生ページ
 export default function Play() {
   const searchParams = useSearchParams()
   const params = {
     ctype: searchParams.get('ctype'),
-    cid: searchParams.get('cid') || "",
+    cid: searchParams.get('cid'),
     sid: searchParams.get('sid'),
     pid: parseInt(`${searchParams.get('pid')}`, 10),
+    vod: searchParams.get('vod'),
+    recordingId: searchParams.get('recordingId'),
   }
+
+  const isVod = params.vod === '1'
 
   const router = useRouter()
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
@@ -25,30 +30,24 @@ export default function Play() {
   const [muted, setMuted] = useState(false)
   const [enabledInfoUI, setInfoUI] = useState(false)
   const [programInfo, setProgramInfo] = useState<MirakurunProgram | null>(null)
-  const [channels, setChannels] = useState<MirakurunChannelList>([])
+  const [playableUrl, setPlayableUrl] = useState<string>("")
+  const [ssThumbnailImageUrl, setSsThumbnailImageUrls] = useState<Array<string>>([])
   const finalVolume = muted ? 0 : volume ** 2
 
-  // アルファ版(キーボード操作による番組切り替え)
-  useKey('ArrowLeft', (e: KeyboardEvent) => {
-    console.log('e', e)
-  });
-  useKey('ArrowRight', (e: KeyboardEvent) => {
-    const nextChannel = getNextChannel(params.cid, channels)
-    console.log('next', nextChannel)
-    // router.push(`/play?ctype=${params.ctype}&cid=${nextChannel.channel}&sid=${nextChannel.services[0].id}&pid=327390104816587`)
-    // setTimeout(() => {
-    //   location.reload()
-    // }, 100)
-  }, undefined, [channels]);
-
   useEffect(() => {
-    mirakurun.fetchProgramInfo(params.pid).then((program: MirakurunProgram) => {
-      setProgramInfo(program)
-    })
-
-    mirakurun.fetchChannels().then(channels => {
-      setChannels(channels)
-    })
+    if (isVod) {
+      const recordingId = params.recordingId || ""
+      apiClient.fetchRecordingStatus(recordingId).then(recordingStatus => {
+        setPlayableUrl(recordingStatus.playableUrl)
+        setSsThumbnailImageUrls(recordingStatus.ssThumbnailImageUrls)
+        setProgramInfo(recordingStatus.programInfo.program)
+      })
+    } else {
+      mirakurun.fetchProgramInfo(params.pid).then((program: MirakurunProgram) => {
+        setPlayableUrl(`http://localhost:8081/stream/${params.ctype}/${params.cid}/services/${params.sid}`)
+        setProgramInfo(program)
+      })
+    }
   }, [])
 
   const setVolume = (volume: number) => {
@@ -85,8 +84,11 @@ export default function Play() {
   }
 
   const onClickGoback = () => {
-    // 番組表ページに固定移動
-    router.push('/')
+    if (isVod) {
+      router.push('/recording/list')
+    } else {
+      router.push('/')
+    }
   }
 
   const onClickOpenInfo = () => {
@@ -100,9 +102,9 @@ export default function Play() {
     setInfoUI(false)
   }
 
-  // proxy serverのURL
-  // const playableUrl = "http://localhost:8081/stream/GR/16/services/3239123608"
-  const playableUrl = `http://localhost:8081/stream/${params.ctype}/${params.cid}/services/${params.sid}`
+  if (playableUrl.length === 0) {
+    return <div>loading...</div>
+  }
 
   return <div className="w-full h-full fixed top-0 left-0 z-10 bg-black">
     <video ref={setVideo} className="w-full h-full">

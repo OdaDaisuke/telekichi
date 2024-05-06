@@ -86,12 +86,12 @@ export class DbClient {
     await p2
   }
 
-  getRecordingStatus = async (id: string): Promise<RecordingStatus | null> => {
-    const p = new Promise<RecordingStatus | null>((resolve, reject) => {
+  getRecordingStatus = async (id: string): Promise<RecordingStatus> => {
+    const p = new Promise<RecordingStatus>((resolve, reject) => {
       this.db.get<RecordingStatus>("select * from recording_status where id = ?", [id], (err, row) => {
         console.log('error', err)
         if (err) {
-          resolve(null)
+          reject(err)
           return
         }
         resolve(row)
