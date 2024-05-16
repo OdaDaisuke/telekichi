@@ -18,7 +18,11 @@ export const generateSsThumbnail = async (inputSource, recordingId) => {
   // filter_complexを `"` で囲むと動かない
   const args = `-i ${inputSource} -filter_complex select='not(mod(n,300))',setpts='N/(30*TB)',scale=240:-1,tile=layout=10x10 -vsync vfr ${outputDir}/%04d.jpg -f null`
   console.log('args', args)
-  const ffmpegProcess = spawn('ffmpeg', args.split(' '));
+  const ffmpegProcess = spawn('ffmpeg', [
+    '-i', inputSource,
+    '-filter_complex', `select='not(mod(n,300))',setpts='N/(30*TB)',scale=240:-1,tile=layout=10x10`,
+    '-vsync', 'vfr', `${outputDir}/%04d.jpg`, '-f', 'null',
+  ]);
 
   ffmpegProcess.stderr.on('data', (data) => {
     console.error(`${data}`);

@@ -1,13 +1,10 @@
 'use client'
-import { useEffect, useState } from 'react';
-import { useKey } from 'react-use';
+import { useEffect, useState, useRef, MouseEventHandler } from 'react';
 import { Volume } from '@/components/video_player/volume';
 import { GoBack } from '@/components/video_player/go_back';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { mirakurun } from '@/gateway/mirakurun';
 import { MirakurunProgram } from '@/models/mirakurun';
-import { MirakurunChannelList } from '@/models/mirakurun'
-import { getNextChannel } from '@/object_value/channels'
 import { apiClient } from '@/gateway/api';
 
 // 番組再生ページ
@@ -26,6 +23,11 @@ export default function Play() {
 
   const router = useRouter()
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
+  const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
+  const [ssThumbnailRef, setSsThumbnailRef] = useState<HTMLDivElement | null>(null);
+  const [seekBarLeft, setSeekBarLeft] = useState<number>(0);
+  const [seekBarSize, setSeekBarSize] = useState<number>(0);
+
   const [volume, setVolumeState] = useState(1)
   const [muted, setMuted] = useState(false)
   const [enabledInfoUI, setInfoUI] = useState(false)
@@ -33,6 +35,7 @@ export default function Play() {
   const [playableUrl, setPlayableUrl] = useState<string>("")
   const [ssThumbnailImageUrl, setSsThumbnailImageUrls] = useState<Array<string>>([])
   const finalVolume = muted ? 0 : volume ** 2
+  const ssThumbnailWidth = 240
 
   useEffect(() => {
     if (isVod) {
@@ -42,13 +45,18 @@ export default function Play() {
         setSsThumbnailImageUrls(recordingStatus.ssThumbnailImageUrls)
         setProgramInfo(recordingStatus.programInfo.program)
       })
+
+      if (wrapperRef != null) {
+        setSeekBarLeft(wrapperRef.getBoundingClientRect().left)
+        setSeekBarSize(parseInt(`${wrapperRef.getBoundingClientRect().width}`, 10))
+      }
     } else {
       mirakurun.fetchProgramInfo(params.pid).then((program: MirakurunProgram) => {
         setPlayableUrl(`http://localhost:8081/stream/${params.ctype}/${params.cid}/services/${params.sid}`)
         setProgramInfo(program)
       })
     }
-  }, [])
+  }, [wrapperRef, ssThumbnailRef])
 
   const setVolume = (volume: number) => {
     if (video) {
@@ -106,6 +114,32 @@ export default function Play() {
     return <div>loading...</div>
   }
 
+  const onSeekBarMove = (clientX: number) => {
+    if (!ssThumbnailRef || !programInfo) {
+      return
+    }
+    const firstThreshold = seekBarLeft + clientX
+    const secondThreshold = seekBarLeft + seekBarSize
+    const position = (firstThreshold) >= (secondThreshold) ? seekBarSize - ssThumbnailWidth * 2 : clientX - seekBarLeft
+    ssThumbnailRef.style.left = `${position}px`
+
+    // const durationSec = programInfo?.duration / 1000
+    const durationSec = 13 * 60 + 25
+    const cellWidth = 240
+    const cellHeight = 135
+    // ssThumbnailImageUrl[0] 10秒おき(10x10) 1000秒=1枚
+    const targetSecPosition = durationSec * ((clientX - seekBarLeft) / seekBarSize)
+    const targetSsThumbnailPage = Math.floor(targetSecPosition / 1000)
+    const targetSsThumbnailX = Math.floor((targetSecPosition % 1000) % 10) * cellWidth
+    const targetSsThumbnailY = Math.floor((targetSecPosition % 1000) / 10) * cellHeight
+    console.log('t', targetSsThumbnailX, targetSsThumbnailY)
+    if (!ssThumbnailRef.style.backgroundImage.includes(ssThumbnailImageUrl[targetSsThumbnailPage])) {
+      ssThumbnailRef.style.backgroundImage = `url(${ssThumbnailImageUrl[targetSsThumbnailPage]})`
+    }
+    ssThumbnailRef.style.backgroundPositionX = `${targetSsThumbnailX}px`
+    ssThumbnailRef.style.backgroundPositionY = `${targetSsThumbnailY}px`
+  }
+
   return <div className="w-full h-full fixed top-0 left-0 z-10 bg-black">
     <video ref={setVideo} className="w-full h-full">
       <source src={playableUrl} type="video/webm"></source>
@@ -120,6 +154,23 @@ export default function Play() {
       onChange={onChangeVolume}
       onToggleMute={onToggleMute}
     />
+    {isVod && <div className="absolute left-96 bottom-4"  style={{width: '80%'}}>
+      <div ref={setWrapperRef} className="cursor-pointer w-full" onMouseMove={(event) => { onSeekBarMove(event.clientX)}}>
+        <div ref={setSsThumbnailRef} style={{backgroundColor: '#2f2f2f',width: '240px', height: '130px', position: 'absolute', top: '-120px', }}></div>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.02}
+          value={1}
+          className="w-full"
+          style={{width: '80%'}}
+          onChange={event => {
+            console.log('seeked', event)
+          }}
+        />
+      </div>
+    </div>}
     <button
       type="button"
       onClick={onClickPlay}

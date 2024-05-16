@@ -82,8 +82,7 @@ const startRecordingScheduler = () => {
     const ongoingSchedule = scheduleList.getOngoingSchedule(currentTime)
     if (ongoingSchedule !== null && !queuedScheduleIdList.has(ongoingSchedule.scheduleId)) {
       const endAt = ongoingSchedule.programInfo.program.startAt + ongoingSchedule.programInfo.program.duration
-      // const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
-      const durationSec = 4
+      const durationSec = parseInt(`${(endAt - currentTime + recordingStartTimeOffset) / 1000}`, 10)
       const pid = ongoingSchedule.programInfo.program.id
       const sid = ongoingSchedule.programInfo.sid
       const cid = ongoingSchedule.programInfo.cid

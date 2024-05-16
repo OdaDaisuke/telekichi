@@ -36,10 +36,13 @@ class ApiClient {
 
   async fetchRecordingSettingList(): Promise<Array<RecordingSchedule>> {
     try {
-      const r = await this.client.get<Array<RecordingSchedule>>(`/recording/schedule/list?filter=exclude_finished`)
+      // const r = await this.client.get<Array<any>>(`/recording/schedule/list?filter=exclude_finished`)
+      const r = await this.client.get<Array<any>>(`/recording/schedule/list?filter=exclude_finished`)
+      console.log('r', r.data)
       return r.data
-    } catch (e) {
-      throw e
+    } catch (e: any) {
+      console.error('error ' + e, e.message)
+      return []
     }
   }
 
