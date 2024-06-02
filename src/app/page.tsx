@@ -8,6 +8,8 @@ import { EPGBody, ProgramsPerService } from '@/components/epg/body';
 import { MirakurunChannelList, MirakurunChannel, MirakurunProgram } from "@/models/mirakurun";
 import { mirakurun } from '@/gateway/mirakurun';
 import { AppButton } from '@/components/button';
+import { Loading } from '@/components/loading';
+import { Warning } from '@/components/warning';
 
 const fetchData = async () => {
   const channels = await mirakurun.fetchChannels();
@@ -44,17 +46,21 @@ const fetchData = async () => {
 
 // 番組表ページ
 export default function EPG() {
-  const router = useRouter()
   const [selectedProgram, selectProgram] = useState<{
     ctype: string,
     cid: string,
     sid: number,
     program: MirakurunProgram
   } | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const [loaded, setLoaded] = useState(false)
   const [channels, setChannels] = useState<MirakurunChannelList>([])
   const [programsPerService, setPrograms] = useState<ProgramsPerService>([])
   const [currentTime, setCurrentTime] = useState<number>((new Date()).getTime())
   const currentHour = new Date(currentTime).getHours()
+  const d = new Date()
+  const month = d.getMonth() + 1
+  const today = d.getDate()
 
   useEffect(() => {
     setInterval(() => {
@@ -64,6 +70,10 @@ export default function EPG() {
     fetchData().then(data => {
       setChannels(data.channels)
       setPrograms(data.programsPerService)
+      setLoaded(true)
+    }).catch(e => {
+      setLoaded(true)
+      setError(e)
     })
   }, [])
 
@@ -94,8 +104,37 @@ export default function EPG() {
     })
   }
 
+  if (!loaded) {
+    return <div>
+      <header className="fixed w-full" style={{backgroundColor: '#1F1F20'}}>
+        <span className="block text-xl mt-4 font-italic">{month}月{today}日</span>
+      </header>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}} className="w-full h-screen">
+        <Loading height={72} width={72} />
+      </div>
+    </div>
+  }
+
+  if (error != null) {
+    return <div>
+      <header className="fixed w-full" style={{backgroundColor: '#1F1F20'}}>
+        <span className="block text-xl mt-4 font-italic">{month}月{today}日</span>
+      </header>
+      <div className="flex text-left content-center justify-start pt-32 w-full flex-wrap">
+        <h2 className="w-full mb-1" style={{fontSize: '3.4rem'}}><Warning style={{height: '59px', width: '59px'}} />エラー発生</h2>
+        <p className="w-full mb-16" style={{lineHeight: '1.8'}}>Mirakurunを起動してください。<br />
+起動している場合は、設定が正しいかご確認ください。</p>
+        <h4 className="w-full text-xl mb-2" style={{color: '#e0e0e0'}}>エラーメッセージ</h4>
+        <p style={{color: '#e0e0e0'}}>{error.message}</p>
+      </div>
+    </div>
+  }
+
   return (
     <div>
+      <header className="fixed w-full" style={{backgroundColor: '#1F1F20'}}>
+        <span className="block text-xl mt-4 font-italic">{month}月{today}日</span>
+      </header>
       <EPGHeader channels={channels}/>
       <div className="flex">
         <EPGTimeScale currentHour={currentHour}/>

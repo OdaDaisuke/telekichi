@@ -6,25 +6,18 @@ class Mirakurun {
   constructor() {
     this.client = axios.create({
       baseURL: "http://192.168.40.71:40772/api",
+      timeout: 4000,
     })
   }
 
   async fetchChannels(): Promise<MirakurunChannelList> {
-    try {
-      const r = await this.client.get<MirakurunChannelList>("/channels?type=GR")
-      return r.data
-    } catch (e) {
-      return []
-    }
+    const r = await this.client.get<MirakurunChannelList>("/channels?type=GR")
+    return r.data
   }
 
   async fetchPrograms(serviceId: number): Promise<Array<MirakurunProgram>> {
-    try {
-      const r = await this.client.get<Array<MirakurunProgram>>(`/programs?serviceId=${serviceId}`)
-      return r.data
-    } catch (e) {
-      return []
-    }
+    const r = await this.client.get<Array<MirakurunProgram>>(`/programs?serviceId=${serviceId}`)
+    return r.data
   }
 
   /**
@@ -33,12 +26,8 @@ class Mirakurun {
    * @returns 
    */
   async fetchProgramInfo(programId: number): Promise<MirakurunProgram> {
-    try {
-      const r = await this.client.get<MirakurunProgram>(`/programs/${programId}`)
-      return r.data
-    } catch (e) {
-      throw e
-    }
+    const r = await this.client.get<MirakurunProgram>(`/programs/${programId}`)
+    return r.data
   }
 }
 

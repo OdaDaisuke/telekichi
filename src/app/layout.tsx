@@ -19,10 +19,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AppHeader />
-        <div className="flex w-full">
-          <AppMenu />
-          <main className="flex-1 overflow-x-auto">{children}</main>
+        <div className="flex w-full relative">
+          <div style={{flex: '0 1 240px', left: '0', top: '0', position: 'fixed'}}>
+            <AppHeader />
+            <AppMenu />
+          </div>
+          <main className="flex-1 overflow-x-auto" style={{marginLeft: '240px', position: 'relative',width: 'calc(100% - 240px)'}}>{children}</main>
         </div>
       </body>
     </html>
