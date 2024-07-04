@@ -50,7 +50,7 @@ DVB / DVB-S2 / ISDB-T/Sに対応。
 - 字幕表示(STD-B36)対応 / ARIB外字対応
 - MSE/EMEでの再生に対応
 - 字幕スクショのSNSシェア機能
-- チューナ管理部分の自前開発
+- チューナ管理システム(Mirakurun相当)の自前開発(DVBv5 Toolsなどで)
 
 ## Dir
 
