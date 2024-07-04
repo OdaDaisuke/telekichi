@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from "axios"
 import { RecordingSchedule } from "@/models/recording_schedule"
 import { RecordingStatusDecoded } from '@/models/recording_status'
 import { MirakurunProgram } from "@/models/mirakurun"
+import { AppSettingsObject, SettingType, AppSetting } from "@/models/setting"
 
 class ApiClient {
   private readonly client: AxiosInstance
@@ -58,6 +59,30 @@ class ApiClient {
   async fetchRecordingStatus(recordingId: string): Promise<RecordingStatusDecoded> {
     try {
       const r = await this.client.get<RecordingStatusDecoded>(`/recording/status?recording_id=${recordingId}`)
+      return r.data
+    } catch (e) {
+      throw e
+    }
+  }
+
+  // 全体設定取得
+  async fetchAppSettings(): Promise<AppSettingsObject> {
+    try {
+      const r = await this.client.get<AppSettingsObject>(`/app_settings`)
+      return r.data
+    } catch (e) {
+      throw e
+    }
+  }
+
+  // 特定の全体設定項目を更新
+  async updateAppSetting(settingType: SettingType, value: string): Promise<AppSetting> {
+    try {
+      // 上書きして返ってきた結果を返す(デフォルト値に戻すケースに対応するため)
+      const r = await this.client.put<AppSetting>(`/app_settings`, {
+        settingType: settingType,
+        value: value
+      })
       return r.data
     } catch (e) {
       throw e

@@ -12,6 +12,7 @@ export const AppMenu = (props: IProps) => {
     { label: "HOME", pathname: "/" },
     { label: "録画済み", pathname: "/recording/list" },
     { label: "録画設定一覧", pathname: "/recording/setting/list" },
+    { label: "全体設定", pathname: "/setting" },
   ]
 
   const commonStyle = {

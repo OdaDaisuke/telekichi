@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3'
 import { RecordingScheduleMetadata } from '@/models/recording_schedule'
 import { RecordingStatus } from '@/models/recording_status'
+import { AppSetting } from '@/models/setting'
 
 export class DbClient {
   private readonly db: sqlite3.Database
@@ -157,6 +158,60 @@ export class DbClient {
   updateRecordingStatus = async (id: string, recordingStatus: number | undefined, thumbnailGenerated: number, ssThumbnailImageCount: number) => {
     const p = new Promise((resolve, reject) => {
       this.db.run('update recording_status set status = ?, thumbnail_generated = ?, ss_thumbnail_image_count = ? where id = ?', [recordingStatus, thumbnailGenerated, ssThumbnailImageCount, id], (err) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(undefined)
+      })
+    })
+    await p
+  }
+
+  listSettings = async () => {
+    const p = new Promise<Array<AppSetting>>((resolve, reject) => {
+      this.db.all<AppSetting>("select * from app_settings", (err, rows) => {
+        if (err) {
+          console.log('error', err)
+          resolve([])
+          return
+        }
+        resolve(rows)
+      })
+    })
+    return await p
+  }
+
+  getSetting = async (settingType: string): Promise<AppSetting> => {
+    const p = new Promise<AppSetting>((resolve, reject) => {
+      this.db.get<AppSetting>("select * from app_settings where setting_type = ?", [settingType], (err, row) => {
+        console.log('error', err)
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(row)
+      })
+    })
+    return await p
+  }
+
+  updateAppSettingToDefaultValue = async (settingType: string) => {
+    const p = new Promise((resolve, reject) => {
+      this.db.run('update app_settings set value = default_value where setting_type = ?', [settingType], (err) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(undefined)
+      })
+    })
+    await p
+  }
+
+  updateAppSetting = async (settingType: string, value: string) => {
+    const p = new Promise((resolve, reject) => {
+      this.db.run('update app_settings set value = ? where setting_type = ?', [value, settingType], (err) => {
         if (err) {
           reject(err)
           return
