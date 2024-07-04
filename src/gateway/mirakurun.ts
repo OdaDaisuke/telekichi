@@ -5,6 +5,7 @@ class Mirakurun {
   private readonly client: AxiosInstance
   constructor() {
     this.client = axios.create({
+      // FIXME: configから動的参照
       baseURL: "http://192.168.40.71:40772/api",
       timeout: 4000,
     })

@@ -14,6 +14,7 @@ server.get('/stream/:channel_type/:channel_id/services/:service_id', (req, res) 
   const channelId = req.params.channel_id
   const serviceId = req.params.service_id
 
+  // FIXME: configから動的参照
   const inputOriginHost = 'http://192.168.40.71:40772'
   // const inputSource = `http://192.168.40.71:40772/api/channels/GR/16/services/3239123608/stream`
   const inputSource = `${inputOriginHost}/api/channels/${channelType}/${channelId}/services/${serviceId}/stream`
