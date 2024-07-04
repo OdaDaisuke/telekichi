@@ -34,13 +34,9 @@
 
 ## 対応チューナ
 
-DVB / DVB-S2 / ISDB-T/Sに対応。
+PT3やPT4Kなどの内蔵チューナ / PLEX系やピクセラなどの外付けチューナ
 
-- 内蔵タイプ
-  - PLEX系全般
-  - PT3 / PT4Kなど
-- 外付けタイプ
-  - ピクセラなど
+※DVB / DVB-S2 / ISDB-T/Sに対応しています。
 
 ## Roadmaps
 
