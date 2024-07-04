@@ -10,6 +10,9 @@ export async function GET(
   const url = new URL(req.url || "")
   const metadataList: Array<RecordingScheduleMetadata> = []
 
+  // FIXME: GET内ではなく、専用のポーリング機構を作ってそこで定期的にしんだ予約を削除する
+  await dbStore.deleteDeadRecordingScheduleMetadatas()
+
   if (url.searchParams.get("filter") === 'exclude_finished') {
     const res = await dbStore.getRecordingScheduleMetadataListWithExcludeFinished()
     metadataList.push(...res)

@@ -86,6 +86,19 @@ export class DbClient {
     await p2
   }
 
+  deleteDeadRecordingScheduleMetadata = async (now: number) => {
+    const p2 = new Promise((resolve, reject) => {
+      this.db.run('delete from recording_schedule_metadata where start_at < ?', [now], (err) => {
+        if (err) {
+          reject(`error ${JSON.stringify(err)}`)
+          return
+        }
+        resolve(undefined)
+      })
+    })
+    await p2
+  }
+
   getRecordingStatus = async (id: string): Promise<RecordingStatus> => {
     const p = new Promise<RecordingStatus>((resolve, reject) => {
       this.db.get<RecordingStatus>("select * from recording_status where id = ?", [id], (err, row) => {
