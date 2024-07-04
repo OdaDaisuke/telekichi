@@ -1,4 +1,4 @@
-# telekichi
+# telekichi(WIP)
 
 テレビをPC/スマホ/出先でもっと快適に楽しむ、Webベースの視聴 & 録画クライアント。
 
