@@ -12,8 +12,6 @@
 
 <img src="./docs/recorded_player.png" width="660px" />
 
-<img src="./docs/setting.png" width="660px" />
-
 ## アルファ版公開までの道のり
 
 - 録画デーモンのバグ修正
